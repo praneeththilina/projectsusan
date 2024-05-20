@@ -4,12 +4,14 @@ from flask_migrate import Migrate
 from flask_login import  current_user
 from flask_security.core import Security
 from flask_security.datastore import SQLAlchemySessionUserDatastore
+from flask_security.utils import hash_password
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf import CSRFProtect
 from flask_mail import Mail
 from dotenv import load_dotenv
 from .config import Config
+from datetime import datetime
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -32,7 +34,7 @@ def create_app():
     csrf.init_app(app)
     mail.init_app(app)
 
-    from .models import User, Role, PremiumRequest, Notification
+    from .models import User, Role, PremiumRequest, Notification, PremiumPlan
 
     user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role) # type: ignore
     security = Security(app, user_datastore)
@@ -75,5 +77,49 @@ def create_app():
         else:
             notification_count = 0
         return dict(notification_count=notification_count)
+    
+    @app.before_request
+    def create_default_data():
+        initialize_default_data(user_datastore)
 
+    def initialize_default_data(user_datastore):
+        with app.app_context():
+            if not Role.query.filter_by(name='user').first():
+                user_role = user_datastore.create_role(name='user', permissions='user-read, user-write')
+                db.session.add(user_role)
+            
+            if not Role.query.filter_by(name='admin').first():
+                admin_role = user_datastore.create_role(name='admin', permissions='admin-read, admin-write')
+                db.session.add(admin_role)
+            
+            db.session.commit()
+
+            if not User.query.filter_by(email='admin@mail.com').first():
+                admin_user = user_datastore.create_user(
+                    email='admin@mail.com',
+                    password=hash_password('password'),
+                    confirmed_at=datetime.now(),
+                    roles=['admin']
+                )
+                db.session.add(admin_user)
+            
+            db.session.commit()
+
+            
+            # Add PremiumPlan data
+            if not PremiumPlan.query.filter_by(name='1 Month').first():
+                plan_1_month = PremiumPlan(name='1 Month', valid_days=30) # type: ignore
+                db.session.add(plan_1_month)
+
+            if not PremiumPlan.query.filter_by(name='2 Months').first():
+                plan_2_months = PremiumPlan(name='2 Months', valid_days=60) # type: ignore
+                db.session.add(plan_2_months)
+
+            if not PremiumPlan.query.filter_by(name='3 Months').first():
+                plan_3_months = PremiumPlan(name='3 Months', valid_days=90) # type: ignore
+                db.session.add(plan_3_months)
+
+            db.session.commit()
+            
     return app
+

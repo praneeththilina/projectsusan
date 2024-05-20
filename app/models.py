@@ -14,7 +14,7 @@ class Role(db.Model, fsqla.FsRoleMixin):
     pass
 
 class User(db.Model, fsqla.FsUserMixin):
-    public_id = db.Column(db.String(4), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
+    public_id = db.Column(db.String(256), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     _api_key = db.Column(db.String(256), nullable=True)
     _api_secret = db.Column(db.String(256), nullable=True)
     premium_plan_id = db.Column(db.Integer, db.ForeignKey('premium_plan.id'))

@@ -1,0 +1,21 @@
+{% extends "security/base.html" %}
+{% from "security/_macros.html" import render_field_with_errors, render_field, render_form_errors, render_field_errors %}
+
+{% block content %}
+  {% include "security/_messages.html" %}
+  <div class="max-w-md mx-auto mt-10 bg-white dark:bg-gray-800 p-8 shadow-md rounded">
+      <h1 class="text-2xl font-bold text-center mb-6">{{ _fsdomain('Register') }}</h1>
+      <form action="{{ url_for_security('register') }}" method="post" name="register_user_form">
+        {{ register_user_form.hidden_tag() }}
+        {{ render_form_errors(register_user_form) }}
+        {{ render_field_with_errors(register_user_form.email , class_='w-full p-2 mb-4 border dark:border-0 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white' ) }}
+        {% if config["SECURITY_USERNAME_ENABLE"] %}{{ render_field_with_errors(register_user_form.username  , class_='w-full p-2 mb-4 border dark:border-0 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white' ) }}{% endif %}
+        {{ render_field_with_errors(register_user_form.password , class_='w-full p-2 mb-4 border dark:border-0 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white' ) }}
+        {% if register_user_form.password_confirm %}
+          {{ render_field_with_errors(register_user_form.password_confirm  , class_='w-full p-2 mb-4 border dark:border-0 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white' ) }}
+        {% endif %}
+        {{ render_field_errors(register_user_form.csrf_token) }}
+        {{ render_field(register_user_form.submit , class_='w-full p-2 bg-blue-500 text-white rounded cursor-pointer') }}
+      </form>
+  </div>
+{% endblock content %}

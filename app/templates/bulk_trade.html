@@ -1,0 +1,69 @@
+{# {% extends "layout.html" %}
+{% block content %}
+    <h2>Bulk Trade</h2>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.pair.label }}
+            <br>
+            {{ form.pair(size=10) }}
+        </p>
+        <p>
+            {{ form.side.label }}
+            <br>
+            {{ form.side() }}
+        </p>
+        <p>
+            {{ form.price.label }}
+            <br>
+            {{ form.price() }}
+        </p>
+        <p>
+            {{ form.amount.label }}
+            <br>
+            {{ form.amount() }}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock content %} #}
+{% extends "layout.html" %}
+{% block content %}
+<div class="flex flex-wrap justify-between items-start mt-12">
+    <div class="w-full md:w-1/2 mb-4 md:mb-0">
+            <h2 class="text-2xl font-semibold mb-4">Bulk Trade</h2>
+            <form method="post" class="space-y-4">
+                {{ form.hidden_tag() }}
+                <div>
+                    <label for="pair" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Pair</label>
+                    {{ form.pair(size=10, class="form-input") }}
+                </div>
+                <div>
+                    <label for="side" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Side</label>
+                    {{ form.side(class="form-select") }}
+                </div>
+                <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Price</label>
+                    {{ form.price(class="form-input") }}
+                </div>
+                <div>
+                    <label for="amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
+                    {{ form.amount(class="form-input") }}
+                </div>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Submit</button>
+            </form>
+    </div>
+    <div class="w-full md:w-1/2">
+
+            <h2 class="text-xl font-semibold mb-4">Last 5 Trade Data</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Replace this with your trade data display logic -->
+                {# {% for trade in last_5_trades %}
+                <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+                    <!-- Display trade data here -->
+                    <p>{{ trade }}</p>
+                </div>
+                {% endfor %} #}
+            </div>
+    </div>
+</div>
+{% endblock content %}

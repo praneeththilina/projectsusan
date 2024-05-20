@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Execute Trade</h1>
+    <form method="post" action="">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.pair.label }}
+            <br>
+            {{ form.pair(size=32) }}
+        </p>
+        <p>
+            {{ form.side.label }}
+            <br>
+            {{ form.side() }}
+        </p>
+        <p>
+            {{ form.price.label }}
+            <br>
+            {{ form.price(size=32) }}
+        </p>
+        <p>
+            {{ form.amount.label }}
+            <br>
+            {{ form.amount(size=32) }}
+        </p>
+        <p>
+            <input type="submit" value="Execute Trade">
+        </p>
+    </form>
+{% endblock content %}

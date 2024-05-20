@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A secure and efficient trading bot built with Flask, CCXT, and SQLAlchemy.">
+    <meta name="keywords" content="trading bot, Flask, CCXT, SQLAlchemy, cryptocurrency trading, automated trading">
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+
+    <title>Trading App</title>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+  <div id="app" class="flex">
+    <!-- Sidebar -->
+    <aside class="sidebar bg-white dark:bg-gray-800 p-4 flex flex-col justify-between rounded-lg">
+      <span>
+          <!-- User Profile -->
+          {% if current_user.is_authenticated %}
+            <div class="flex items-center space-x-4">
+                <img height="100" width="100" src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" alt="Current Avatar" class="w-16 h-16 bg-gray-300 rounded-full">
+                {# <img height="100" width="100" class="w-16 h-16 bg-gray-300 rounded-full" src="{{ url_for('static', filename='img/avatar.svg') }}" alt="profile"> #}
+                <div>
+                    <p class="font-semibold">{{ current_user.email }}</p>
+                    <p class="text-sm text-gray-500">Joined: {{ current_user.confirmed_at }}</p>
+                </div>
+            </div>
+            <nav class="mt-4">
+                <a href="{{ url_for('main.index') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Home</a>
+                <a href="{{ url_for('main.dashboard') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Dashboard</a>
+                <a href="{{ url_for('main.bulk_trade') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Bulk Trade</a>
+                <a href="{{ url_for('main.trade') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Trade</a>
+                <a href="{{ url_for('main.api_credentials') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">API Set</a>
+                <a href="{{ url_for('main.request_premium_plan') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Buy Package</a>
+                <a href="{{ url_for('main.settings') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Settings</a>
+                
+                
+                <a href="{{ url_for('main.notifications') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">
+                  Notifications
+                  {% if notification_count %}
+                      <span class="bg-red-500 text-white rounded-full px-2 py-1 text-xs ml-2">{{ notification_count }}</span>
+                  {% endif %}
+                </a>
+                {% if current_user.has_role('admin') %}
+                  <a href="{{ url_for('main.admin_review_plan_requests') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">
+                    Pack Approvals
+                    {% if pending_count %}
+                        <span class="bg-red-500 text-white rounded-full px-2 py-1 text-xs ml-2">{{ pending_count }}</span>
+                    {% endif %}
+                  </a>
+                {% endif %}
+            </nav>
+          {% endif %}
+      </span>
+      <!-- Logout Button -->
+      <a href="{{ url_for('security.logout') }}" class="logout-btn flex items-center py-1 px-2 rounded transition duration-200 hover:bg-gray-700 dark:hover:bg-gray-900">
+          <svg class="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm10-7a1 1 0 10-2 0v5a1 1 0 002 0V3zm0 8a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd" />
+          </svg>
+          Logout
+      </a>
+    </aside>
+    <!-- Main Content -->
+    <main class="content flex-1">
+      {% include "security/_messages.html" %}
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 w-full h-full max-w-screen-xl overflow-auto">
+        {% block content %}{% endblock content %}
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Menu Button -->
+  <button id="mobile-menu-button" class="fixed top-4 right-4 z-50 bg-gray-800 w-10 h-10 text-white rounded-full md:hidden">
+    ☰
+  </button>
+
+  <!-- Mobile Modal -->
+  <div id="mobile-menu-modal" class="modal">
+  
+    <div class="modal-content  bg-white text-gray-700 dark:bg-gray-700 dark:text-white ">
+      <span class="close">×</span>
+      
+      <nav>
+        <a href="{{ url_for('main.index') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Home</a>
+        <a href="{{ url_for('main.dashboard') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Dashboard</a>
+        <a href="{{ url_for('main.bulk_trade') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Bulk Trade</a>
+        <a href="{{ url_for('main.trade') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Trade</a>
+        <a href="{{ url_for('main.api_credentials') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">API Set</a>
+        <a href="{{ url_for('main.request_premium_plan') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Buy Package</a>
+        {% if current_user.has_role('admin') %}
+          <a href="{{ url_for('main.admin_review_plan_requests') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Pack Approvals</a>
+        {% endif %}
+        <a href="{{ url_for('security.logout') }}" class="logout-btn block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 dark:hover:bg-gray-900">Logout</a>
+      </nav>
+    </div>
+  </div>
+
+<button id="theme-toggle" class="floating-toggle w-10 h-10 text-white rounded-full bg-gray-200 dark:bg-gray-600 transition duration-200 shadow-md">
+  <img id="theme-toggle-icon" height="" width="" class="w-6 h-6 mx-auto my-auto" src="{{ url_for('static', filename='img/sun.svg') }}" alt="Theme Toggle Icon">
+</button>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    function updateThemeIcon() {
+      const icon = document.getElementById('theme-toggle-icon');
+      if (document.documentElement.classList.contains('dark')) {
+          icon.src = "{{ url_for('static', filename='img/moon.svg') }}";
+      } else {
+          icon.src = "{{ url_for('static', filename='img/sun.svg') }}";
+      }
+    }
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      updateThemeIcon();
+    });
+
+    // On page load
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+    updateThemeIcon();
+    window.onload = updateThemeIcon;
+
+    // Mobile Menu Button
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenuModal = document.getElementById('mobile-menu-modal');
+    const closeModal = document.querySelector('.modal .close');
+
+    mobileMenuButton.addEventListener('click', () => {
+      mobileMenuModal.classList.toggle('active');
+    });
+
+    closeModal.addEventListener('click', () => {
+      mobileMenuModal.classList.remove('active');
+    });
+
+    window.onclick = (event) => {
+      if (event.target === mobileMenuModal) {
+        mobileMenuModal.classList.remove('active');
+      }
+    }
+  </script>
+</body>
+</html>

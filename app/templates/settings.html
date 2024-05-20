@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 w-full mx-auto">
+    <h2 class="text-2xl font-semibold mb-4">User Settings</h2>
+    <div class="flex flex-col items-center">
+        <img height="" width="" src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" alt="Current Avatar" class="w-24 h-24 rounded-full mb-4 cursor-pointer" id="current-avatar">
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <div class="mb-4">
+                <label class="block text-gray-700">Take Profit Percentage</label>
+                <div class="percentage-input-wrapper">
+                    {{ form.take_profit_percentage(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline percentage-input") }}
+                    <span class="percentage-symbol">%</span>
+                </div>
+                {% if form.take_profit_percentage.errors %}
+                <p class="text-red-500 text-xs italic">{{ form.take_profit_percentage.errors[0] }}</p>
+                {% endif %}
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700">Stop Loss Percentage</label>
+                <div class="percentage-input-wrapper">
+                    {{ form.stop_loss_percentage(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline percentage-input") }}
+                    <span class="percentage-symbol">%</span>
+                </div>
+                {% if form.stop_loss_percentage.errors %}
+                <p class="text-red-500 text-xs italic">{{ form.stop_loss_percentage.errors[0] }}</p>
+                {% endif %}
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700">Future Wallet Margin Usage Ratio</label>
+                <div class="percentage-input-wrapper">
+                    {{ form.future_wallet_margin_usage_ratio(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline percentage-input") }}
+                    <span class="percentage-symbol">%</span>
+                </div>
+                {% if form.future_wallet_margin_usage_ratio.errors %}
+                <p class="text-red-500 text-xs italic">{{ form.future_wallet_margin_usage_ratio.errors[0] }}</p>
+                {% endif %}
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700">Telegram Chat ID</label>
+                <div>
+                    {{ form.tg_chatid(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                </div>
+                {% if form.tg_chatid.errors %}
+                <p class="text-red-500 text-xs italic">{{ form.tg_chatid.errors[0] }}</p>
+                {% endif %}
+            </div>
+            <div class="flex items-center justify-between">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Avatar Modal -->
+    <div class="fixed z-10 inset-0 overflow-y-auto hidden" id="avatar-modal">
+        <div class="flex items-center justify-center min-h-screen text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">​</span>
+            <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300 flex justify-between">
+                                <span>Change Avatar</span>
+                                <button id="close-modal" class="text-gray-400 hover:text-gray-600">×</button>
+                            </h3>
+                            <div class="mt-2">
+                                <form method="post" id="avatar-form">
+                                    {{ formavtar.hidden_tag() }}
+                                    <div class="grid grid-cols-3 gap-4">
+                                        {% for subfield in formavtar.avatar %}
+                                            <label class="block text-center cursor-pointer">
+                                                {{ subfield }}
+                                                <img height="" width="" alt="avatar" src="{{ url_for('static', filename='avatars/' ~ subfield.label.text) }}" class="w-16 h-16 mx-auto mt-2">
+                                            </label>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="text-center mt-4">
+                                        {{ formavtar.submit(class_="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:shadow-outline") }}
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of Avatar Modal -->
+
+    <script>
+        document.getElementById('current-avatar').addEventListener('click', function() {
+            document.getElementById('avatar-modal').classList.remove('hidden');
+        });
+
+        document.getElementById('close-modal').addEventListener('click', function() {
+            document.getElementById('avatar-modal').classList.add('hidden');
+        });
+    </script>
+</div>
+{% endblock content %}

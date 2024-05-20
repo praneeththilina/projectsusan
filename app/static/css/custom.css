@@ -1,0 +1,142 @@
+.sidebar {
+    height: 100vh;
+    position: fixed;
+    width: 16rem;
+    overflow-y: auto;
+}
+
+.content {
+    margin-left: 16rem;
+    padding: 1rem;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.logout-btn {
+    background-color: #e3342f;
+    color: white;
+}
+
+.floating-toggle {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1000;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+        width: 100%;
+        position: fixed;
+        height: 100vh;
+        z-index: 1000;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar.active {
+        display: block;
+    }
+
+    .content {
+        margin-left: 0;
+        padding: 1rem;
+        height: 100vh;
+        overflow-y: auto;
+    }
+}
+
+.modal-content {
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 5px;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding-top: 60px;
+}
+
+.modal.active {
+    display: block;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#toast-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.toast {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+}
+
+.toast.success {
+    background-color: #38a169;
+    /* Tailwind green-600 */
+    color: white;
+}
+
+.toast.error {
+    background-color: #e53e3e;
+    /* Tailwind red-600 */
+    color: white;
+}
+
+.toast.warning {
+    background-color: orange;
+    /* Tailwind red-600 */
+    color: white;
+}
+
+.toast .close-btn {
+    margin-left: auto;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.percentage-input-wrapper {
+    position: relative;
+}
+
+.percentage-symbol {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: gray;
+}

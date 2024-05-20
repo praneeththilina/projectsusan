@@ -10,6 +10,13 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECURITY_PASSWORD_SALT = os.getenv("SECURITY_PASSWORD_SALT")
+
+    # SQLAlchemy pool options
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_pre_ping': True,
+        'pool_recycle': 1800,  # Recycle connections after 30 minutes
+    }
+
     # SECURITY_EMAIL_VALIDATOR_ARGS = {"check_deliverability": False}
     SECURITY_SEND_REGISTER_EMAIL = False
     SECURITY_POST_REGISTER_VIEW = 'security.login'

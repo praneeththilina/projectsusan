@@ -1,8 +1,8 @@
-"""initial
+"""setup all
 
-Revision ID: 1c5b725cc988
+Revision ID: 851ce13da33c
 Revises: 
-Create Date: 2024-05-20 09:16:50.694787
+Create Date: 2024-05-20 11:08:09.793212
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 import flask_security
 
 # revision identifiers, used by Alembic.
-revision = '1c5b725cc988'
+revision = '851ce13da33c'
 down_revision = None
 branch_labels = None
 depends_on = None

@@ -44,3 +44,9 @@ class Config:
     SECURITY_USERNAME_MAX_LENGTH = 15
     WEBHOOK_PASSPHRASE = 'praneeth123456'
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN") 
+
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = 'praneeth.thilina1991@gmail.com'
+    MAIL_PASSWORD = 'wesn wuzk buoa vagr'

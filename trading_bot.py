@@ -148,7 +148,8 @@ def execute_trade(pair, side, user, order_type):
 
             #  alert sent--------- 
             if created_order and order_stopLoss and order_TP:
-                message = f"New trade executed:\n {side} {position_amount} of {pair} at {price} --------------------- \n|    TP at {order_TP['stopPrice']} --------------------- \n|    SL at {order_stopLoss['stopPrice']}"
+                
+                message = f"---------------------\nNew trade executed!\n {side} {'{:.4f}'.format(position_amount)} of {pair} \n|    Entry at {created_order['price']} \n|    TP at {order_TP['stopPrice']} \n|    SL at {order_stopLoss['stopPrice']} \n---------------------"
                 flash_and_telegram(user, message, category='success')
 
             # Update databse 

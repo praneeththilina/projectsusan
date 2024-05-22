@@ -50,10 +50,10 @@ def trade_alert():
             if _api_key and _api_secret:
                 execute_trade(pair, side, user, order_type)
 
-                # Notify user
-                message = f"Trade executed: {side} {quantity} of {pair} at {price}"
+                # # Notify user
+                # message = f"Trade executed: {side} {quantity} of {pair} at {price}"
                     
-                flash_and_telegram(user, message, category='success')
+                # flash_and_telegram(user, message, category='success')
                 
             else:
                 message = f"Trade execution failed. Connect API: {side} {quantity} of {pair} at {price}"

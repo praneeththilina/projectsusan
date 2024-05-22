@@ -25,13 +25,13 @@
                 </div>
             </div>
             <nav class="mt-4">
-                <a href="{{ url_for('main.index') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Home</a>
-                <a href="{{ url_for('main.dashboard') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Dashboard</a>
-                <a href="{{ url_for('main.bulk_trade') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Bulk Trade</a>
-                <a href="{{ url_for('main.trade') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Trade</a>
-                <a href="{{ url_for('main.api_credentials') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">API Set</a>
-                <a href="{{ url_for('main.request_premium_plan') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Buy Package</a>
-                <a href="{{ url_for('main.settings') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Settings</a>
+                <a href="{{ url_for('main.index') }}" class= "block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.home' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Home</a>
+                <a href="{{ url_for('main.dashboard') }}" class= "block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.dashboard' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Dashboard</a>
+                <a href="{{ url_for('main.bulk_trade') }}" class= "block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.bulk_trade' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Bulk Trade</a>
+                <a href="{{ url_for('main.trade') }}" class= "block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.trade' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Trade</a>
+                <a href="{{ url_for('main.api_credentials') }}" class= "block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.api_credentials' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">API Set</a>
+                <a href="{{ url_for('main.request_premium_plan') }}" class= "block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.request_premium_plan' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Buy Package</a>
+                <a href="{{ url_for('main.settings') }}" class= "block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.settings' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Settings</a>
                 
                 
                 <a href="{{ url_for('main.notifications') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">

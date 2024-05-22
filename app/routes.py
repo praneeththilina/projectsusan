@@ -72,7 +72,7 @@ def trade():
             return redirect(url_for('main.dashboard'))
 
         # Execute the trade
-        order = execute_trade(pair=form.pair.data, side=form.side.data, amount=form.amount.data, api_key=api_key, api_secret=api_secret, user_id=current_user.id)
+        order = execute_trade(pair=form.pair.data, side=form.side.data, user=current_user,order_type="market")
   
         flash('Trade executed successfully!', 'success')
         return redirect(url_for('main.dashboard'))
@@ -114,7 +114,7 @@ def bulk_trade():
                 print(f"api {user.api_key.decode('utf-8')}") 
                 print(f"secret {user.api_secret.decode('utf-8')}")
                 # Execute trade for each user
-                execute_trade(pair=form.pair.data, side=form.side.data, amount=form.amount.data, api_key=user.api_key.decode('utf-8'), api_secret=user.api_secret.decode('utf-8'), user_id=user.id)
+                execute_trade(pair=form.pair.data, side=form.side.data, user=user, order_type="market")
                 flash('Bulk trade executed successfully!', 'success')
         return redirect(url_for('main.dashboard'))
     return render_template('bulk_trade.html', form=form)
@@ -267,60 +267,70 @@ def mark_as_read(notification_id):
     return redirect(url_for('main.notifications'))
     
 
-@main.route('/webhook', methods=['POST'])
-def webhook():
-    # # Check if the request IP is allowed
-    # if request.remote_addr not in ALLOWED_IPS:
-    #     return jsonify({'error': 'Unauthorized IP address'}), 403
+# @main.route('/data/trades')
+# def get_trades():
+#     trades = Trade.query.filter_by(user_id=current_user.id).all()
+#     trade_data = [
+#         {
+#             'timestamp': trade.timestamp.isoformat(),
+#             'pair': trade.pair,
+#             'comment': trade.comment,
+#             'orderid': trade.orderid,
+#             'status': trade.status,
+#             'realized_pnl': trade.realized_pnl,
+#             'side': trade.side,
+#             'price': trade.price,
+#             'amount': trade.amount
+#         } for trade in trades
+#     ]
+#     return jsonify(trade_data)
 
-    data = request.json
-    if data:
-        passphrase = os.getenv('TRADINGVIEW_PASSPHRASE')
 
-        if data['passphrase'] != passphrase:
-            return jsonify({"error": "Invalid passphrase"}), 403
+@main.route('/data/trades')
+def get_trades():
+    # Calculate the date 30 days ago from today
+    thirty_days_ago = datetime.now() - timedelta(days=30)
+    
+    # Query for trades from the last 30 days
+    trades = Trade.query.filter(
+        Trade.user_id == current_user.id,
+        Trade.timestamp >= thirty_days_ago
+    ).all()
+    
+    # Prepare the trade data for JSON response
+    trade_data = [
+        {
+            'timestamp': trade.timestamp.isoformat(),
+            'pair': trade.pair,
+            'comment': trade.comment,
+            'orderid': trade.orderid,
+            'status': trade.status,
+            'realized_pnl': trade.realized_pnl,
+            'side': trade.side,
+            'price': trade.price,
+            'amount': trade.amount
+        } for trade in trades
+    ]
+    
+    # Return the data as JSON
+    return jsonify(trade_data)
 
-        symbol = data['symbol']
-        if symbol.endswith('.P'):
-            symbol = symbol[:-2]
 
-        action = data['action'].lower()
-        price = data['price']
-        quantity = data['quantity']
+# Views
+@main.route('/confirmed')
+def confirmation_success():
+    success_message = request.args.get('success')
+    email = request.args.get('email')
+    identity = request.args.get('identity')
+    
+    # You can customize this template or message according to your requirements
+    return render_template('server_err/confirmation_success.html', success_message=success_message, email=email, identity=identity)
 
-        users = User.query.filter(
-            User.expire_date > datetime.now()
-        ).all()
+@main.route('/confirm-error')
+def confirm_error():
+    # You can customize this template or message according to your requirements
+    return render_template('server_err/confirmation_error.html')
 
-        for user in users:
-            try:
-                if api_key and api_secret:
-                    api_key = user.api_key.decode('utf-8')
-                    api_secret = user.api_secret.decode('utf-8')
-                    exchange = get_ccxt_instance(api_key, api_secret)
-
-                    if action == 'buy':
-                        execute_trade(pair=symbol, side=action, amount=quantity, api_key=user.api_key.decode('utf-8'), api_secret=user.api_secret.decode('utf-8'), user_id=user.id)
-                    elif action == 'sell':
-                        execute_trade(pair=symbol, side=action, amount=quantity, api_key=user.api_key.decode('utf-8'), api_secret=user.api_secret.decode('utf-8'), user_id=user.id)
-                    else:
-                        continue
-
-                    # Notify user
-                    message = f"Trade executed: {action} {quantity} of {symbol} at {price}"
-                    
-                    flash_and_telegram(user, message, category='success')
-                
-                else:
-                    message = f"Trade execution failed. Connect API: {action} {quantity} of {symbol} at {price}"
-                    save_notification(user.id,message)
-
-            except Exception as e:
-                current_app.logger.error(f"Error executing trade for user {user.id}: {str(e)}")
-                flash_and_telegram(user, f"Error executing trade: {str(e)}", category='error')
-
-        return jsonify({"success": True}), 200
-    return jsonify({"error": True}), 404
 
 
 def register_blueprints(app):

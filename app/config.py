@@ -6,7 +6,7 @@ load_dotenv()
 from datetime import timedelta
 class Config:
     DEBUG = True
-    SECRET_KEY = secrets.token_hex(32) #os.getenv('SECRET_KEY')
+    SECRET_KEY =  '123456789' #secrets.token_hex(32)  #os.getenv('SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECURITY_PASSWORD_SALT = os.getenv("SECURITY_PASSWORD_SALT")
@@ -18,7 +18,7 @@ class Config:
     }
 
     # SECURITY_EMAIL_VALIDATOR_ARGS = {"check_deliverability": False}
-    SECURITY_SEND_REGISTER_EMAIL = False
+    SECURITY_SEND_REGISTER_EMAIL = True
     SECURITY_POST_REGISTER_VIEW = 'security.login'
     SECURITY_POST_LOGIN_VIEW = 'main.dashboard'
     SECURITY_POST_LOGOUT_VIEW = 'security.login'

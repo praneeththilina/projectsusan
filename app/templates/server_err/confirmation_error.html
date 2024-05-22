@@ -1,0 +1,30 @@
+{% extends "security/base.html" %}
+{% from "security/_macros.html" import render_field_with_errors, render_field, render_field_errors, render_form_errors, prop_next %}
+{% block html_attribs %}{{ super() }} lang="en"{% endblock html_attribs %}
+{% block title %}Verified | Project Susan{% endblock title %}
+
+{% block content %}
+    <!-- main body area -->
+    <div class="main p-2 py-3 xl:p-5">
+
+        <!-- Body: Body -->
+        <div class="body flex p-0 xl:p-5">
+            <div class="container mx-auto">
+                <div class="row flex flex-wrap items-center">
+                    <div class="hidden lg:flex lg:justify-center lg:items-center lg:w-1/2">
+                        <img height="" width="" src="{{ url_for('static', filename='/img/not_found.svg') }}" class="img-fluid" alt="#"/>
+                    </div>
+                    <div class="flex justify-center items-center w-full lg:w-1/2 flex-col">
+                        <div class="card max-w-lg bg-white dark:bg-gray-800">
+                            <div class="card-body p-4">
+                                <h1 class="text-6xl text-gray-900 dark:text-gray-100">Error! </h1>
+                                <span class="text-gray-500 dark:text-gray-400"> Please Retry from Login Page</span>
+                                <a href="{{ url_for_security('login') }}" title="Login" class="btn btn-primary text-uppercase py-2 text-lg mt-3 block">Go back to login!</a>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- End Row -->
+            </div>
+        </div>
+    </div>
+{% endblock content %}

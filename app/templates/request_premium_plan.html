@@ -1,76 +1,67 @@
-{# {% extends "layout.html" %}
-{% block content %}
-    <h1 class="text-3xl font-bold mb-6">Request Premium Plan</h1>
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <ul class="flashes">
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
-  <form method="post">
-    {{ form.hidden_tag() }}
-    <div class="form-group">
-      {{ form.plan.label }}<br>
-      {{ form.plan(size=1) }}
-      {% for error in form.plan.errors %}
-        <span class="error">{{ error }}</span>
-      {% endfor %}
-    </div>
-    <button type="submit">{{ form.submit.label }}</button>
-  </form>
-{%- endblock content %} #}
-
 {% extends "layout.html" %}
 {% block content %}
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    <!-- jQuery -->
+    <link href="{{ url_for('static', filename='plugin/datatables/responsive.dataTables.min.css') }}" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <!-- DataTables JS -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+
 <h1 class="text-3xl font-bold mb-6">Request Premium Plan</h1>
 {% with messages = get_flashed_messages() %}
     {% if messages %}
-        <ul class="flashes">
+        <ul class="flashes list-disc list-inside mb-4">
             {% for message in messages %}
-                <li>{{ message }}</li>
+                <li class="text-red-500 dark:text-red-300">{{ message }}</li>
             {% endfor %}
         </ul>
     {% endif %}
 {% endwith %}
-<form method="post">
+<form method="post" class="bg-white dark:bg-gray-800 shadow-md rounded px-8 pt-6 pb-8 mb-4">
     {{ form.hidden_tag() }}
-    <div class="form-group">
-        {{ form.plan.label }}<br>
-        {{ form.plan(size=1) }}
+    <div class="form-group mb-4">
+        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">{{ form.plan.label }}</label>
+        {{ form.plan(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline", size=1) }}
         {% for error in form.plan.errors %}
-            <span class="error">{{ error }}</span>
+            <span class="text-red-500 dark:text-red-300 text-xs italic">{{ error }}</span>
         {% endfor %}
     </div>
-    <button type="submit">{{ form.submit.label }}</button>
+    <button type="submit" class="bg-blue-500 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">{{ form.submit.label }}</button>
 </form>
-<h2 class="text-2xl mt-6">Your Last 5 Requests</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Requested Plan</th>
-            <th>Created At</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for request in user_requests %}
+<h2 class="text-2xl mt-6 mb-4">Your Last 5 Requests</h2>
+<div class="table-responsive">
+    <table id="requestsTable" class="min-w-full bg-white dark:bg-gray-800 dark:text-gray-300">
+        <thead>
             <tr>
-                <td>{{ request.plan.name }}</td>
-                <td>{{ request.created_at }}</td>
-                <td>
-                    {% if request.approved %}
-                        Approved
-                    {% elif request.rejected %}
-                        Rejected
-                    {% else %}
-                        Pending
-                    {% endif %}
-                </td>
+                <th class="py-2 border-b dark:border-gray-700">Requested Plan</th>
+                <th class="py-2 border-b dark:border-gray-700">Created At</th>
+                <th class="py-2 border-b dark:border-gray-700">Status</th>
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            {% for request in user_requests %}
+                <tr class="bg-gray-100 dark:bg-gray-700">
+                    <td class="border px-4 py-2 dark:border-gray-700">{{ request.plan.name }}</td>
+                    <td class="border px-4 py-2 dark:border-gray-700">{{ request.created_at }}</td>
+                    <td class="border px-4 py-2 dark:border-gray-700">
+                        {% if request.approved %}
+                            <span class="text-green-500 dark:text-green-300">Approved</span>
+                        {% elif request.rejected %}
+                            <span class="text-red-500 dark:text-red-300">Rejected</span>
+                        {% else %}
+                            <span class="text-yellow-500 dark:text-yellow-300">Pending</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#requestsTable').DataTable();
+    });
+</script>
 {% endblock content %}

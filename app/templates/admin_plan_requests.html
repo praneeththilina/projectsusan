@@ -1,60 +1,50 @@
-{# {% extends "layout.html" %}
-{% block content %}
-  <h1 class="text-3xl font-bold mb-6">Plan Requests</h1>
-    <div class="overflow-x-auto">
-        <table class="table-auto w-full border-collapse">
-          <thead>
-            <tr class="bg-gray-200 dark:bg-gray-800">
-              <th>User id</th>
-              <th>Email</th>
-              <th>Username</th>
-              <th>Requested Plan</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for request in requests %}
-              <tr>
-                <td>{{ request.user.id }}</td>
-                <td>{{ request.user.email }}</td>
-                <td>{{ request.user.username }}</td>
-                <td>{{ request.plan.name }}</td>
-                <td><a href="{{ url_for('main.admin_approve_plan', request_id=request.id) }}">Approve</a></td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-    </div>
-{%- endblock content %} #}
-
+<!-- plan_requests.html -->
 {% extends "layout.html" %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Plan Requests  (Pending: {{ pending_count }})</h1>
+<h1 class="text-2xl font-bold mb-6">Plan Requests (Pending: {{ pending_count }})</h1>
 <div class="overflow-x-auto">
-    <table class="table-auto w-full border-collapse">
+    <table id="planRequestsTable" class="table-auto w-full border-collapse">
         <thead>
-            <tr class="bg-gray-200 dark:bg-gray-800">
-                <th>User ID</th>
-                <th>Email</th>
-                <th>Username</th>
-                <th>Requested Plan</th>
-                <th>Action</th>
+            <tr class="bg-gray-200 dark:bg-gray-800 text-left text-sm uppercase text-gray-600 dark:text-gray-400">
+                <th class="py-3 px-4">User ID</th>
+                <th class="py-3 px-4">Email</th>
+                <th class="py-3 px-4">Username</th>
+                <th class="py-3 px-4">Requested Plan</th>
+                <th class="py-3 px-4">Action</th>
             </tr>
         </thead>
         <tbody>
             {% for request in requests %}
-                <tr>
-                    <td>{{ request.user.id }}</td>
-                    <td>{{ request.user.email }}</td>
-                    <td>{{ request.user.username }}</td>
-                    <td>{{ request.plan.name }}</td>
-                    <td>
-                        <a href="{{ url_for('main.admin_approve_plan', request_id=request.id) }}">Approve</a>
-                        <a href="{{ url_for('main.admin_reject_plan', request_id=request.id) }}">Reject</a>
+                <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <td class="py-3 px-4">{{ request.user.id }}</td>
+                    <td class="py-3 px-4">{{ request.user.email }}</td>
+                    <td class="py-3 px-4">{{ request.user.username }}</td>
+                    <td class="py-3 px-4">{{ request.plan.name }}</td>
+                    <td class="py-3 px-4">
+                        <div class="flex space-x-2">
+                            <a href="{{ url_for('main.admin_approve_plan', request_id=request.id) }}" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-2 rounded">Approve</a>
+                            <a href="{{ url_for('main.admin_reject_plan', request_id=request.id) }}" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-2 rounded">Reject</a>
+                        </div>
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<!-- Include DataTables and jQuery -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#planRequestsTable').DataTable({
+            responsive: true,
+            columnDefs: [
+                { targets: 4, orderable: false }
+            ]
+        });
+    });
+</script>
 {% endblock content %}

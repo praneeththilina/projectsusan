@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import  current_user
@@ -45,6 +46,8 @@ def create_app():
     # Register Blueprints or routes
     from .routes import register_blueprints
     register_blueprints(app)
+    from .webhook import register_blueprint
+    register_blueprint(app)
 
 
     @app.errorhandler(404)

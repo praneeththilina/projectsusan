@@ -33,19 +33,6 @@ def calculate_trade_amount(total_balance, usage_ratio, rate_per_trade):
     trade_amount = allocated_balance * (rate_per_trade/100)
     return trade_amount
 
-def fetch_trade_status(exchange, order_id, pair):
-    try:
-        # Fetch order details from the exchange
-        order = exchange.fetch_order(order_id, pair)
-        status = order['status']
-        realized_pnl = order.get('fee', {}).get('cost', 0)  # Assuming 'fee' contains realized PnL info
-
-        return status, realized_pnl
-    except Exception as e:
-        current_app.logger.error(f"Error fetching trade status for order {order_id}: {str(e)}")
-        return None, None
-
-
 # def create_stop_market_orders(exchange, pair, side, amount, take_profit_price, stop_loss_price):
 #     try:
 #         if side == 'buy':
@@ -72,7 +59,8 @@ def save_notification(user_id, message):
     
 def save_trade(user_id, order_data, message):
         trade = Trade(
-            timestamp=datetime.fromisoformat(order_data['datetime']), # type: ignore
+            # timestamp=datetime.fromisoformat(order_data['datetime']), # type: ignore
+            timestamp=datetime.now(), 
             pair=order_data['symbol'],
             comment = message,
             orderid = order_data['id'],

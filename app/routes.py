@@ -110,9 +110,7 @@ def bulk_trade():
         ).all()
 
         for user in users:
-            if user.api_key and user.api_secret:
-                print(f"api {user.api_key.decode('utf-8')}") 
-                print(f"secret {user.api_secret.decode('utf-8')}")
+            if user._api_key and user._api_secret:
                 # Execute trade for each user
                 execute_trade(pair=form.pair.data, side=form.side.data, user=user, order_type="market")
                 flash('Bulk trade executed successfully!', 'success')

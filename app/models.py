@@ -78,7 +78,7 @@ class TradingStrategy(db.Model):
 class Trade(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    pair = db.Column(db.String(10))
+    pair = db.Column(db.String(30))
     comment = db.Column(db.String(10))
     orderid = db.Column(db.Integer())
     status = db.Column(db.String(10))

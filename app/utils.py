@@ -57,13 +57,13 @@ def save_notification(user_id, message):
         db.session.add(notification)
         db.session.commit()
     
-def save_trade(user_id, order_data, message):
+def save_trade(user_id, order_data, message, orderid):
         trade = Trade(
             # timestamp=datetime.fromisoformat(order_data['datetime']), # type: ignore
             timestamp=datetime.now(), 
             pair=order_data['symbol'],
             comment = message,
-            orderid = order_data['id'],
+            orderid = orderid,
             status = order_data['status'],
             side =order_data['side'],
             price = (order_data['price'] if order_data['info']['type'] == 'MARKET' else order_data['stopPrice']),

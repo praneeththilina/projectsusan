@@ -77,12 +77,12 @@ class TradingStrategy(db.Model):
 
 class Trade(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.now)
     pair = db.Column(db.String(30))
     comment = db.Column(db.String(10))
-    orderid = db.Column(db.Integer())
+    orderid = db.Column(db.String(30))
     status = db.Column(db.String(10))
-    realized_pnl = db.Column(db.Integer())
+    realized_pnl = db.Column(db.Integer)
     side = db.Column(db.String(4))  # 'buy' or 'sell'
     price = db.Column(db.Float)
     amount = db.Column(db.Float)

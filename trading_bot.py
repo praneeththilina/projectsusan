@@ -132,19 +132,23 @@ def execute_trade(pair, side, user, order_type):
 
             if close_running_position:
                 message = 'FORCE_CLOSED'
-                save_trade(user.id, close_running_position, message)
+                orderid = close_running_position['info']['orderId']
+                save_trade(user.id, close_running_position, message, orderid)
 
             if created_order:
                 message = created_order['info']['type']
-                save_trade(user.id, created_order, message)
+                orderid = created_order['info']['orderId']
+                save_trade(user.id, created_order, message, orderid)
 
             if order_stopLoss:
                 message = order_stopLoss['info']['type']
-                save_trade(user.id, order_stopLoss,message)
+                orderid = order_stopLoss['info']['orderId']
+                save_trade(user.id, order_stopLoss,message, orderid)
 
             if order_TP:
                 message = order_TP['info']['type']
-                save_trade(user.id, order_TP,message)
+                orderid = order_TP['info']['orderId']
+                save_trade(user.id, order_TP,message, orderid)
 
             #  alert sent--------- 
             if created_order and order_stopLoss and order_TP:

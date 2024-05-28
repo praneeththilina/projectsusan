@@ -52,6 +52,11 @@ def flash_and_telegram(user, message, category='message'):
     if user.settings and user.settings.tg_chatid:
         send_telegram_message(user.settings.tg_chatid, message)
 
+def telegram(user, message):
+    if user.settings and user.settings.tg_chatid:
+        send_telegram_message(user.settings.tg_chatid, message)
+
+
 def save_notification(user_id, message):
         notification = Notification(user_id=user_id, message=message) # type: ignore
         db.session.add(notification)
@@ -61,7 +66,7 @@ def save_trade(user_id, order_data, message, orderid):
         trade = Trade(
             # timestamp=datetime.fromisoformat(order_data['datetime']), # type: ignore
             timestamp=datetime.now(), 
-            pair=order_data['symbol'],
+            pair=order_data['info']['symbol'],
             comment = message,
             orderid = orderid,
             status = order_data['status'],
@@ -71,6 +76,25 @@ def save_trade(user_id, order_data, message, orderid):
             user_id=user_id)  # type: ignore
         db.session.add(trade)
         db.session.commit()
+    
+
+def save_trade_tpsl(user_id, extracted_order, message, orderid):
+        trade = Trade(
+            # timestamp=datetime.fromisoformat(order_data['datetime']), # type: ignore
+            timestamp=datetime.now(), 
+            pair=extracted_order['symbol'],
+            comment = message,
+            orderid = orderid,
+            status = extracted_order['status'],
+            side =extracted_order['side'],
+            price = extracted_order['stopPrice'],
+            amount=extracted_order['quantity'],
+            user_id=user_id)  # type: ignore
+        db.session.add(trade)
+        db.session.commit()
+    
+
+
     
 def fetch_trade_status_for_user(user_id):
     try:

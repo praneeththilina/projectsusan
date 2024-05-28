@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, SubmitField, DateTimeField, SelectField, HiddenField,\
             RadioField
-from wtforms.validators import DataRequired, NumberRange
+from wtforms.validators import DataRequired, NumberRange, ValidationError
 
 
 # class TradeForm(FlaskForm):
@@ -31,31 +31,30 @@ class RequestPremiumPlanForm(FlaskForm):
         super(RequestPremiumPlanForm, self).__init__(*args, **kwargs)
         self.plan.choices = [(plan.id, plan.name) for plan in plans]
 
-# class SettingsForm(FlaskForm):
-#     take_profit_percentage = FloatField('Take Profit Percentage', validators=[DataRequired(), NumberRange(min=0, max=100)])
-#     stop_loss_percentage = FloatField('Stop Loss Percentage', validators=[DataRequired(), NumberRange(min=0, max=100)])
-#     future_wallet_margin_usage_ratio = FloatField('Future Wallet Margin Usage Ratio', validators=[DataRequired(), NumberRange(min=0, max=100)])
-#     submit = SubmitField('Save Settings')
-
-
 class SettingsForm(FlaskForm):
-    take_profit_percentage = FloatField(
-        'Take Profit Percentage',
-        validators=[DataRequired(), NumberRange(min=0, max=100)],
-        render_kw={"class": "percentage-input"}
-    )
-    stop_loss_percentage = FloatField(
-        'Stop Loss Percentage',
-        validators=[DataRequired(), NumberRange(min=0, max=100)],
-        render_kw={"class": "percentage-input"}
-    )
-    future_wallet_margin_usage_ratio = FloatField(
-        'Future Wallet Margin Usage Ratio',
-        validators=[DataRequired(), NumberRange(min=0, max=100)],
-        render_kw={"class": "percentage-input"}
-    )
+    take_profit_percentage = FloatField('Take Profit Percentage', validators=[DataRequired(), NumberRange(min=0, max=100)],render_kw={"class": "percentage-input", "type": "number", "step": "any"})
+    stop_loss_percentage = FloatField('Stop Loss Percentage', validators=[DataRequired(), NumberRange(min=0, max=100)],render_kw={"class": "percentage-input", "type": "number", "step": "any"})
+    order_type = SelectField('Order Type', choices=[('market', 'Market'), ('limit', 'Limit')],validators=[DataRequired()], render_kw={"class": "dropdown"})
+    leverage = FloatField('Leverage', validators=[DataRequired(), NumberRange(min=0, max=100)])
+    defined_margine_per_trade = FloatField('Defined Margine Per Trade', validators=[DataRequired()])
     tg_chatid = StringField('Telegram Chat ID', validators=[DataRequired()])
-    submit = SubmitField('Save Settings')
+
+    submit = SubmitField('Save')
+
+    def validate_stop_loss_percentage(self, stop_loss_percentage):
+        # Extract necessary parameters
+        leverage = self.leverage.data
+        if leverage:
+            maint_margin_percent = 2.5
+            entry_price = 500
+            # Calculate liquidation price
+            liquidation_price = entry_price * (1 - 1 / leverage + maint_margin_percent / 100 / leverage)
+
+            # Calculate maximum stop loss ratio
+            max_stop_loss_ratio = (entry_price - liquidation_price) / entry_price
+            if stop_loss_percentage.data > ((max_stop_loss_ratio) * 100):  # Convert to percentage
+                raise ValidationError(f"Stop loss percentage exceeds the allowable limit based on leverage {leverage}x. Max SL Ratio: {'{:.2f}'.format(max_stop_loss_ratio*100)}%")
+
 
 class MarkAsReadForm(FlaskForm):
     notification_id = HiddenField('Notification ID')

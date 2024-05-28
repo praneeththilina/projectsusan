@@ -45,10 +45,9 @@ def trade_alert():
     for user in users:
         _api_key = user._api_key
         _api_secret = user._api_secret
-        order_type =  'market'
         try:
             if _api_key and _api_secret:
-                execute_trade(pair, side, user, order_type)
+                execute_trade(pair, side, user)
 
                 # # Notify user
                 # message = f"Trade executed: {side} {quantity} of {pair} at {price}"
@@ -61,7 +60,9 @@ def trade_alert():
 
         except Exception as e:
             current_app.logger.error(f"Error executing trade for user {user.id}: {str(e)}")
-            flash_and_telegram(user, f"Error executing trade: {str(e)}", category='error')
+            message = f"Trade execution failed. Getting error {str(e)}"
+            save_notification(user.id,message)
+            # flash_and_telegram(user, f"Error executing trade: {str(e)}", category='error')
 
     return jsonify({"success": True}), 200
 

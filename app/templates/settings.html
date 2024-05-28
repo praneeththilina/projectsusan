@@ -4,46 +4,67 @@
     <h2 class="text-2xl font-semibold mb-4">User Settings</h2>
     <div class="flex flex-col items-center">
         <img height="" width="" src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" alt="Current Avatar" class="w-24 h-24 rounded-full mb-4 cursor-pointer" id="current-avatar">
-        <form method="post">
+        <form method="post" class="w-full max-w-lg">
             {{ form.hidden_tag() }}
-            <div class="mb-4">
-                <label class="block text-gray-700">Take Profit Percentage</label>
-                <div class="percentage-input-wrapper">
-                    {{ form.take_profit_percentage(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline percentage-input") }}
-                    <span class="percentage-symbol">%</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="mb-4">
+                    <label class="block text-gray-700 dark:text-gray-100">Leverage</label>
+                    <div class="relative">
+                        {{ form.leverage(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                        <span class="absolute right-2 top-1/2 transform -translate-y-1/2   dark:text-gray-800">x</span>
+                    </div>
+                    {% if form.leverage.errors %}
+                    <p class="text-red-500 text-xs italic">{{ form.leverage.errors[0] }}</p>
+                    {% endif %}
                 </div>
-                {% if form.take_profit_percentage.errors %}
-                <p class="text-red-500 text-xs italic">{{ form.take_profit_percentage.errors[0] }}</p>
-                {% endif %}
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700">Stop Loss Percentage</label>
-                <div class="percentage-input-wrapper">
-                    {{ form.stop_loss_percentage(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline percentage-input") }}
-                    <span class="percentage-symbol">%</span>
+                <div class="mb-4">
+                    <label class="block text-gray-700  dark:text-gray-100">Take Profit Percentage</label>
+                    <div class="relative">
+                        {{ form.take_profit_percentage(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                        <span class="absolute right-2 top-1/2 transform -translate-y-1/2  dark:text-gray-800">%</span>
+                    </div>
+                    {% if form.take_profit_percentage.errors %}
+                    <p class="text-red-500 text-xs italic">{{ form.take_profit_percentage.errors[0] }}</p>
+                    {% endif %}
                 </div>
-                {% if form.stop_loss_percentage.errors %}
-                <p class="text-red-500 text-xs italic">{{ form.stop_loss_percentage.errors[0] }}</p>
-                {% endif %}
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700">Future Wallet Margin Usage Ratio</label>
-                <div class="percentage-input-wrapper">
-                    {{ form.future_wallet_margin_usage_ratio(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline percentage-input") }}
-                    <span class="percentage-symbol">%</span>
+                <div class="mb-4">
+                    <label class="block text-gray-700  dark:text-gray-100">Stop Loss Percentage</label>
+                    <div class="relative">
+                        {{ form.stop_loss_percentage(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                        <span class="absolute right-2 top-1/2 transform -translate-y-1/2  dark:text-gray-800">%</span>
+                    </div>
+                    {% if form.stop_loss_percentage.errors %}
+                    <p class="text-red-500 text-xs italic">{{ form.stop_loss_percentage.errors[0] }}</p>
+                    {% endif %}
                 </div>
-                {% if form.future_wallet_margin_usage_ratio.errors %}
-                <p class="text-red-500 text-xs italic">{{ form.future_wallet_margin_usage_ratio.errors[0] }}</p>
-                {% endif %}
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700">Telegram Chat ID</label>
-                <div>
-                    {{ form.tg_chatid(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                <div class="mb-4">
+                    <label class="block text-gray-700 dark:text-gray-100">Custom Margin for Trade</label>
+                    <div class="relative">
+                        {{ form.defined_margine_per_trade(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                        <span class="absolute right-2 top-1/2 transform -translate-y-1/2  dark:text-gray-800">$</span>
+                    </div>
+                    {% if form.defined_margine_per_trade.errors %}
+                    <p class="text-red-500 text-xs italic">{{ form.defined_margine_per_trade.errors[0] }}</p>
+                    {% endif %}
                 </div>
-                {% if form.tg_chatid.errors %}
-                <p class="text-red-500 text-xs italic">{{ form.tg_chatid.errors[0] }}</p>
-                {% endif %}
+                <div class="mb-4">
+                    <label class="block text-gray-700 dark:text-gray-100">Order Type</label>
+                    <div>
+                        {{ form.order_type(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                    </div>
+                    {% if form.order_type.errors %}
+                    <p class="text-red-500 text-xs italic">{{ form.order_type.errors[0] }}</p>
+                    {% endif %}
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 dark:text-gray-100">Telegram Chat ID</label>
+                    <div>
+                        {{ form.tg_chatid(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                    </div>
+                    {% if form.tg_chatid.errors %}
+                    <p class="text-red-500 text-xs italic">{{ form.tg_chatid.errors[0] }}</p>
+                    {% endif %}
+                </div>
             </div>
             <div class="flex items-center justify-between">
                 <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
@@ -52,6 +73,7 @@
             </div>
         </form>
     </div>
+
 
     <!-- Avatar Modal -->
     <div class="fixed z-10 inset-0 overflow-y-auto hidden" id="avatar-modal">

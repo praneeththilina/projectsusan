@@ -10,7 +10,7 @@ from . import limiter
 from trading_bot import execute_trade  # Your function to execute trades
 from datetime import datetime, timedelta
 from app.utils import get_ccxt_instance
-from .utils import flash_and_telegram, save_notification
+from .utils import flash_and_telegram, save_notification, telegram
 from . import db
 
 main = Blueprint('main', __name__)
@@ -40,8 +40,8 @@ def dashboard():
         settings = UserSettings(user_id=current_user.id,
                                 take_profit_percentage='2.0',
                                 stop_loss_percentage='2.0',
-                                future_wallet_margin_usage_ratio='70.0',
-                                future_rate_per_trade='5',
+                                order_type='market',
+                                defined_margine_per_trade='5',
                                 leverage='10'
                                 )  # type: ignore
         try:
@@ -92,10 +92,13 @@ def api_credentials():
             current_user.api_key = api_key
             current_user.api_secret = api_secret
             db.session.commit()
-            flash_and_telegram(current_user, 'API credentials updated successfully!', 'success')
+            telegram(current_user, f'🚨 <b>API credentials receintly updated!</b> \n\nHey {current_user.email}!,  Make sure about these changes by you.')
+            flash('API credentials receintly updated!', 'success')
             return redirect(url_for('main.dashboard'))
         except Exception as e:
             flash(f'Invalid API credentials: {e}', 'error')
+            telegram(current_user, f'🚨 <b>Invalid API credentials!</b> \n\nHey {current_user.email}!,  Are you trying to <b><u>add|change</u></b> API keys in your account? <b>I think it is not a valid one. 🤦‍♀️</b> \n<u>Try again</u>. Here is error data \n{str(e)}')
+
     
     return render_template('api_credentials.html', form=form)
 
@@ -176,7 +179,8 @@ def admin_approve_plan(request_id):
 
         message = f'Your premium plan request has been approved.'
         save_notification(user_id=user.id, message=message)
-        flash_and_telegram(user, message, 'success')
+        telegram(user, message)
+        flash('Approved', 'success')
     else:
         flash('Invalid request.', 'error')
     return redirect(url_for('main.admin_review_plan_requests'))
@@ -201,7 +205,6 @@ def admin_reject_plan(request_id):
         flash('Invalid request.')
     return redirect(url_for('main.admin_review_plan_requests'))
 
-
 @main.route('/settings', methods=['GET', 'POST'])
 @auth_required('token', 'session')
 def settings():
@@ -213,16 +216,22 @@ def settings():
             if form.validate_on_submit():
                 settings = current_user.settings
                 if not settings:
-                    settings = UserSettings(user_id=current_user.id) # type: ignore
+                    settings = UserSettings(user_id=current_user.id)  # type: ignore
                     db.session.add(settings)
+
                 settings.take_profit_percentage = form.take_profit_percentage.data
                 settings.stop_loss_percentage = form.stop_loss_percentage.data
-                settings.future_wallet_margin_usage_ratio = form.future_wallet_margin_usage_ratio.data
+                settings.leverage = form.leverage.data
+                settings.order_type = form.order_type.data
+                settings.defined_margine_per_trade = form.defined_margine_per_trade.data
                 settings.tg_chatid = form.tg_chatid.data
                 db.session.commit()
-                
-                message = 'Settings updated successfully!'
-                flash_and_telegram(current_user, message, category='success')
+
+                message = (f"🚨<b>Your settings have changed!</b>\n\n Here are new settings \n📌 TP Ratio : {settings.take_profit_percentage} %\n"
+                           f"📌 SL Ratio : {settings.stop_loss_percentage} %\n📌 Allowed Margine per trade ( $ ) : {settings.defined_margine_per_trade} $ \n"
+                           f"📌 Fixed Leverage : {settings.leverage}x")
+                telegram(current_user, message)
+                flash('Settings Changed Successfully!', category='success')
 
                 return redirect(url_for('main.settings'))
 
@@ -236,10 +245,13 @@ def settings():
     if current_user.settings:
         form.take_profit_percentage.data = current_user.settings.take_profit_percentage
         form.stop_loss_percentage.data = current_user.settings.stop_loss_percentage
-        form.future_wallet_margin_usage_ratio.data = current_user.settings.future_wallet_margin_usage_ratio
+        form.leverage.data = current_user.settings.leverage
+        form.defined_margine_per_trade.data = current_user.settings.defined_margine_per_trade
         form.tg_chatid.data = current_user.settings.tg_chatid
+        form.order_type.data = current_user.settings.order_type
 
     return render_template('settings.html', form=form, formavtar=formavtar)
+
 
 @main.route('/notifications')
 @auth_required('token', 'session')

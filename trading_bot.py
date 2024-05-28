@@ -249,7 +249,7 @@ def execute_trade(pair, side, user):
 
         except Exception as e:
             print(str(e))
-            message = f"🚧 Hey {user.email}!\nGot an error while tring to execute trade. {str(e)} . Please visit User guide page to fix it. "
+            message = f"🚧 Hey {user.email}!\nGot an error while trying to execute trade. {str(e)} . Please visit User guide page to fix it. "
             telegram(user, message)
 
 

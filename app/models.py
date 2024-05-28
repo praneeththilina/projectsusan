@@ -98,7 +98,7 @@ class UserSettings(db.Model):
     take_profit_percentage = db.Column(db.Float, default='2.0', nullable = False)
     stop_loss_percentage = db.Column(db.Float, default='2.0', nullable = False)
     future_wallet_margin_usage_ratio = db.Column(db.Float, default='80.0', nullable = False)
-    order_type = db.Column(db.String, default='market', nullable = False)
+    order_type = db.Column(db.String(10), default='market', nullable = False)
     leverage = db.Column(db.Integer , default='10', nullable= False )
     defined_margine_per_trade = db.Column(db.Float,default='10.0', nullable = False)
     tg_chatid = db.Column(db.String(15), nullable=True )

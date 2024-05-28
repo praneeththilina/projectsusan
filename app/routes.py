@@ -73,7 +73,7 @@ def trade():
             return redirect(url_for('main.dashboard'))
 
         # Execute the trade
-        order = execute_trade(pair=form.pair.data, side=form.side.data, user=current_user,order_type="market")
+        order = execute_trade(pair=form.pair.data, side=form.side.data, user=current_user)
   
         flash('Trade executed successfully!', 'success')
         return redirect(url_for('main.dashboard'))
@@ -116,7 +116,7 @@ def bulk_trade():
         for user in users:
             if user._api_key and user._api_secret:
                 # Execute trade for each user
-                execute_trade(pair=form.pair.data, side=form.side.data, user=user, order_type="market")
+                execute_trade(pair=form.pair.data, side=form.side.data, user=user)
                 flash('Bulk trade executed successfully!', 'success')
         return redirect(url_for('main.dashboard'))
     return render_template('bulk_trade.html', form=form)

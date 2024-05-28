@@ -100,7 +100,8 @@ class UserSettings(db.Model):
     future_wallet_margin_usage_ratio = db.Column(db.Float, default='80.0', nullable = False)
     order_type = db.Column(db.String(10), default='market', nullable = False)
     leverage = db.Column(db.Integer , default='10', nullable= False )
-    defined_margine_per_trade = db.Column(db.Float,default='10.0', nullable = False)
+    defined_long_margine_per_trade = db.Column(db.Float,default='8.0', nullable = False)
+    defined_short_margine_per_trade = db.Column(db.Float,default='8.0', nullable = False)
     tg_chatid = db.Column(db.String(15), nullable=True )
     user = db.relationship("User", back_populates="settings")
 

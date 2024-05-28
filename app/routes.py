@@ -41,7 +41,8 @@ def dashboard():
                                 take_profit_percentage='2.0',
                                 stop_loss_percentage='2.0',
                                 order_type='market',
-                                defined_margine_per_trade='5',
+                                defined_long_margine_per_trade='5',
+                                defined_short_margine_per_trade='5',
                                 leverage='10'
                                 )  # type: ignore
         try:
@@ -223,12 +224,13 @@ def settings():
                 settings.stop_loss_percentage = form.stop_loss_percentage.data
                 settings.leverage = form.leverage.data
                 settings.order_type = form.order_type.data
-                settings.defined_margine_per_trade = form.defined_margine_per_trade.data
+                settings.defined_long_margine_per_trade = form.defined_long_margine_per_trade.data
+                settings.defined_short_margine_per_trade = form.defined_short_margine_per_trade.data
                 settings.tg_chatid = form.tg_chatid.data
                 db.session.commit()
 
                 message = (f"🚨<b>Your settings have changed!</b>\n\n Here are new settings \n📌 TP Ratio : {settings.take_profit_percentage} %\n"
-                           f"📌 SL Ratio : {settings.stop_loss_percentage} %\n📌 Allowed Margine per trade ( $ ) : {settings.defined_margine_per_trade} $ \n"
+                           f"📌 SL Ratio : {settings.stop_loss_percentage} %\n📌 Allowed Margin for Long trade ( $ ) : {settings.defined_long_margine_per_trade} $ \n📌 Allowed Margin for Short trade ( $ ) : {settings.defined_short_margine_per_trade} $\n"
                            f"📌 Fixed Leverage : {settings.leverage}x")
                 telegram(current_user, message)
                 flash('Settings Changed Successfully!', category='success')
@@ -246,7 +248,8 @@ def settings():
         form.take_profit_percentage.data = current_user.settings.take_profit_percentage
         form.stop_loss_percentage.data = current_user.settings.stop_loss_percentage
         form.leverage.data = current_user.settings.leverage
-        form.defined_margine_per_trade.data = current_user.settings.defined_margine_per_trade
+        form.defined_long_margine_per_trade.data = current_user.settings.defined_long_margine_per_trade
+        form.defined_short_margine_per_trade.data = current_user.settings.defined_short_margine_per_trade
         form.tg_chatid.data = current_user.settings.tg_chatid
         form.order_type.data = current_user.settings.order_type
 

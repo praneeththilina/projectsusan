@@ -36,24 +36,25 @@ class SettingsForm(FlaskForm):
     stop_loss_percentage = FloatField('Stop Loss Percentage', validators=[DataRequired(), NumberRange(min=0, max=100)],render_kw={"class": "percentage-input", "type": "number", "step": "any"})
     order_type = SelectField('Order Type', choices=[('market', 'Market'), ('limit', 'Limit')],validators=[DataRequired()], render_kw={"class": "dropdown"})
     leverage = FloatField('Leverage', validators=[DataRequired(), NumberRange(min=0, max=100)])
-    defined_margine_per_trade = FloatField('Defined Margine Per Trade', validators=[DataRequired()])
+    defined_long_margine_per_trade = FloatField('Defined Margine Per Trade', validators=[DataRequired()])
+    defined_short_margine_per_trade = FloatField('Defined Margine Per Trade', validators=[DataRequired()])
     tg_chatid = StringField('Telegram Chat ID', validators=[DataRequired()])
 
     submit = SubmitField('Save')
 
-    def validate_stop_loss_percentage(self, stop_loss_percentage):
-        # Extract necessary parameters
-        leverage = self.leverage.data
-        if leverage:
-            maint_margin_percent = 2.5
-            entry_price = 500
-            # Calculate liquidation price
-            liquidation_price = entry_price * (1 - 1 / leverage + maint_margin_percent / 100 / leverage)
+    # def validate_stop_loss_percentage(self, stop_loss_percentage):
+    #     # Extract necessary parameters
+    #     leverage = self.leverage.data
+    #     if leverage:
+    #         maint_margin_percent = 2.5
+    #         entry_price = 500
+    #         # Calculate liquidation price
+    #         liquidation_price = entry_price * (1 - 1 / leverage + maint_margin_percent / 100 / leverage)
 
-            # Calculate maximum stop loss ratio
-            max_stop_loss_ratio = (entry_price - liquidation_price) / entry_price
-            if stop_loss_percentage.data > ((max_stop_loss_ratio) * 100):  # Convert to percentage
-                raise ValidationError(f"Stop loss percentage exceeds the allowable limit based on leverage {leverage}x. Max SL Ratio: {'{:.2f}'.format(max_stop_loss_ratio*100)}%")
+    #         # Calculate maximum stop loss ratio
+    #         max_stop_loss_ratio = (entry_price - liquidation_price) / entry_price
+    #         if stop_loss_percentage.data > ((max_stop_loss_ratio) * 100):  # Convert to percentage
+    #             raise ValidationError(f"Stop loss percentage exceeds the allowable limit based on leverage {leverage}x. Max SL Ratio: {'{:.2f}'.format(max_stop_loss_ratio*100)}%")
 
 
 class MarkAsReadForm(FlaskForm):

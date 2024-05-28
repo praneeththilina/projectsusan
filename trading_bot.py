@@ -119,13 +119,16 @@ def execute_trade(pair, side, user):
         # print(f"trade_amount :{trade_amount}")
         order_type = user_settings.order_type
         saved_leverage = user_settings.leverage
+        long_allowcated_margin = user_settings.defined_long_margine_per_trade 
+        short_allowcated_margin = user_settings.defined_short_margine_per_trade
+
         exchange.set_leverage(saved_leverage, pair)
         print(f"leverage :{exchange.set_leverage(saved_leverage, pair)}")
 
         exchange.set_margin_mode(marginMode='ISOLATED' , symbol=pair)
         print(f"set_margin_mode :{exchange.set_margin_mode(marginMode='ISOLATED' , symbol=pair)}")
 
-        trade_amount = user_settings.defined_margine_per_trade
+        trade_amount =  long_allowcated_margin if side=='buy' else short_allowcated_margin
         calculated_usdt_value = trade_amount * saved_leverage
 
         position_usdt_value = calculated_usdt_value if calculated_usdt_value >= min_price else min_price

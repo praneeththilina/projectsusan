@@ -4,6 +4,7 @@ from trading_bot import execute_trade
 import os
 from datetime import datetime
 from app.utils import flash_and_telegram, save_notification
+from app.telegram_bot import send_telegram_message_group
 
 trading_bp = Blueprint('trading', __name__)
 
@@ -63,6 +64,9 @@ def trade_alert():
             message = f"Trade execution failed. Getting error {str(e)}"
             save_notification(user.id,message)
             # flash_and_telegram(user, f"Error executing trade: {str(e)}", category='error')
+
+    message = message = f"─── ⋆⋅☆⋅⋆ ──\n<b><u>New trade executed!</u></b>\n {side} -{quantity} of {pair} at {price}  \n─── ⋆⋅☆⋅⋆ ───"
+    send_telegram_message_group(message)
 
     return jsonify({"success": True}), 200
 

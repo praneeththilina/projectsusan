@@ -13,4 +13,14 @@ def send_telegram_message(chat_id, message):
     response = requests.post(url, data=payload)
     return response.json()
 
+def send_telegram_message_group(message):
+    chat_id = "-4203711327 "
+    url = f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage'
+    payload = {
+        'chat_id': chat_id,
+        'text': message,
+        'parse_mode': 'HTML'
+    }
+    response = requests.post(url, data=payload)
+    return response.json()
 

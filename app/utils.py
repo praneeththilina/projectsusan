@@ -21,6 +21,7 @@ def get_ccxt_instance(api_key, api_secret):
 
 
 
+
 def fetch_user_settings(user_id):
     return UserSettings.query.filter_by(user_id=user_id).first()
 
@@ -100,7 +101,7 @@ def fetch_trade_status_for_user(user_id):
     try:
         # Query for open trades for the specified user
         trades = Trade.query.filter(
-            Trade.realized_pnl.is_(None),
+            Trade.status == 'open' or Trade.status =='NEW',
             Trade.user_id == user_id
         ).all()
 

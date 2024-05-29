@@ -43,6 +43,7 @@ def dashboard():
                                 order_type='market',
                                 defined_long_margine_per_trade='5',
                                 defined_short_margine_per_trade='5',
+                                max_concurrent = '5',
                                 leverage='10'
                                 )  # type: ignore
         try:
@@ -226,12 +227,13 @@ def settings():
                 settings.order_type = form.order_type.data
                 settings.defined_long_margine_per_trade = form.defined_long_margine_per_trade.data
                 settings.defined_short_margine_per_trade = form.defined_short_margine_per_trade.data
+                settings.max_concurrent = form.concorrent.data
                 settings.tg_chatid = form.tg_chatid.data
                 db.session.commit()
 
-                message = (f"🚨<b>Your settings have changed!</b>\n\n Here are new settings \n📌 TP Ratio : {settings.take_profit_percentage} %\n"
+                message = (f"🚨<b>Your settings have changed!</b>\n\n Here are the new settings \n📌 TP Ratio : {settings.take_profit_percentage} %\n"
                            f"📌 SL Ratio : {settings.stop_loss_percentage} %\n📌 Allowed Margin for Long trade ( $ ) : {settings.defined_long_margine_per_trade} $ \n📌 Allowed Margin for Short trade ( $ ) : {settings.defined_short_margine_per_trade} $\n"
-                           f"📌 Fixed Leverage : {settings.leverage}x")
+                           f"📌 Fixed Leverage : {settings.leverage}x\n📌 Max Concurrent trades limit: {settings.max_concurrent}  ")
                 telegram(current_user, message)
                 flash('Settings Changed Successfully!', category='success')
 
@@ -250,6 +252,7 @@ def settings():
         form.leverage.data = current_user.settings.leverage
         form.defined_long_margine_per_trade.data = current_user.settings.defined_long_margine_per_trade
         form.defined_short_margine_per_trade.data = current_user.settings.defined_short_margine_per_trade
+        form.concorrent.data = current_user.settings.max_concurrent
         form.tg_chatid.data = current_user.settings.tg_chatid
         form.order_type.data = current_user.settings.order_type
 

@@ -132,7 +132,8 @@
                 .then(data => {
                     const timestamps = data.map(trade => moment(trade.timestamp));
                     const realizedPnl = data.map(trade => trade.realized_pnl);
-                    const tradeVolume = data.map(trade => trade.amount);
+                    
+                    const tradeVolume = data.map(trade => ((trade.amount) * (trade.price)));
                     const sides = data.map(trade => trade.side);
 
                     const table = $('#tradeTable').DataTable({

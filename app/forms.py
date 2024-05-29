@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, SubmitField, DateTimeField, SelectField, HiddenField,\
-            RadioField
+            RadioField, IntegerField
 from wtforms.validators import DataRequired, NumberRange, ValidationError
 
 
@@ -36,6 +36,7 @@ class SettingsForm(FlaskForm):
     stop_loss_percentage = FloatField('Stop Loss Percentage', validators=[DataRequired(), NumberRange(min=0, max=100)],render_kw={"class": "percentage-input", "type": "number", "step": "any"})
     order_type = SelectField('Order Type', choices=[('market', 'Market'), ('limit', 'Limit')],validators=[DataRequired()], render_kw={"class": "dropdown"})
     leverage = FloatField('Leverage', validators=[DataRequired(), NumberRange(min=0, max=100)])
+    concorrent = IntegerField('Concurrent Trades Limit', validators=[DataRequired(), NumberRange(min=2, max=50)])
     defined_long_margine_per_trade = FloatField('Defined Margine Per Trade', validators=[DataRequired()])
     defined_short_margine_per_trade = FloatField('Defined Margine Per Trade', validators=[DataRequired()])
     tg_chatid = StringField('Telegram Chat ID', validators=[DataRequired()])

@@ -102,6 +102,7 @@ class UserSettings(db.Model):
     leverage = db.Column(db.Integer , default='10', nullable= False )
     defined_long_margine_per_trade = db.Column(db.Float,default='8.0', nullable = False)
     defined_short_margine_per_trade = db.Column(db.Float,default='8.0', nullable = False)
+    max_concurrent = db.Column(db.Integer, default = '5')
     tg_chatid = db.Column(db.String(15), nullable=True )
     user = db.relationship("User", back_populates="settings")
 

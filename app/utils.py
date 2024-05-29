@@ -4,6 +4,7 @@ from flask import flash , current_app
 from .models import Notification, UserSettings, Trade
 from . import db
 from datetime import datetime
+import pytz
 
 def get_ccxt_instance(api_key, api_secret):
     exchange = ccxt.binance({
@@ -46,6 +47,15 @@ def calculate_trade_amount(total_balance, usage_ratio, rate_per_trade):
 #     except Exception as e:
 #         print(f"An error occurred while creating stop-market orders: {e}")
 #         return None, None
+
+
+def convert_utc_to_local(utc_dt, user_timezone):
+    if not user_timezone:
+        return utc_dt
+    local_tz = pytz.timezone(user_timezone)
+    local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
+    return local_dt
+
 
 
 def flash_and_telegram(user, message, category='message'):
@@ -99,12 +109,11 @@ def save_trade_tpsl(user_id, extracted_order, message, orderid):
     
 def fetch_trade_status_for_user(user_id):
     try:
-        # Query for open trades for the specified user
+        # Get all open or new trades for the specified user
         trades = Trade.query.filter(
-            Trade.status == 'open' or Trade.status =='NEW',
-            Trade.user_id == user_id
+            (Trade.status == 'open') | (Trade.status == 'NEW'),  # Filter by status
+            Trade.user_id == user_id                              # Filter by user ID
         ).all()
-
         return trades
     except Exception as e:
         current_app.logger.error(f"Error fetching trade status for user {user_id}: {str(e)}")
@@ -115,18 +124,18 @@ def fetch_trade_status(exchange, order_id, pair):
 
         # Fetch the order details
         order = exchange.fetch_order(order_id, pair)
-
+        
         # Fetch the trades for the order
-        trades = exchange.fetch_my_trades(pair, None, 10, {'orderId': order_id})
-        print(trades)
+        trades = exchange.fetch_my_trades(symbol=pair, since=None, limit=10, params={'orderId': order_id})
+        # print(trades)
 
         print(f'trades data: {trades}')
     
         print(f"Order ID to filter: {order_id}")
-        print(type(order_id))
+        # print(type(order_id))
 
         # Filter trades by the given order_id
-        filtered_trades = [trade for trade in trades if trade['info']['orderId'] == str(order_id)]
+        filtered_trades = [trade for trade in trades if trade['info']['orderId'] == (order_id)]
 
         # Debugging output: Print filtered trades to verify
         print("Filtered Trades:", filtered_trades)

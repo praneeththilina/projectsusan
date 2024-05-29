@@ -2,14 +2,11 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, SubmitField, DateTimeField, SelectField, HiddenField,\
             RadioField, IntegerField
 from wtforms.validators import DataRequired, NumberRange, ValidationError
+import pytz
 
 
-# class TradeForm(FlaskForm):
-#     pair = StringField('Pair', validators=[DataRequired()])
-#     side = SelectField('Side', choices=[('buy', 'Buy'), ('sell', 'Sell')], validators=[DataRequired()])
-#     price = FloatField('Price')
-#     amount = FloatField('Amount', validators=[DataRequired()])
-#     submit = SubmitField('Execute Trade')
+# Generate list of timezones
+timezone_choices = [(tz, tz) for tz in pytz.all_timezones]
 
 class TradeForm(FlaskForm):
     pair = StringField('Pair', validators=[DataRequired()])
@@ -40,6 +37,7 @@ class SettingsForm(FlaskForm):
     defined_long_margine_per_trade = FloatField('Defined Margine Per Trade', validators=[DataRequired()])
     defined_short_margine_per_trade = FloatField('Defined Margine Per Trade', validators=[DataRequired()])
     tg_chatid = StringField('Telegram Chat ID', validators=[DataRequired()])
+    timezone = SelectField('Timezone', choices=timezone_choices, validators=[DataRequired()], default='Asia/Colombo')
 
     submit = SubmitField('Save')
 

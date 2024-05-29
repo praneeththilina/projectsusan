@@ -50,7 +50,7 @@ def place_otoco_order(exchange, pair, order_type, side, position_amount, price, 
     # Stop-loss order
     stop_loss_order = {
         'symbol': pair,
-        'type':  'STOP',
+        'type':  'STOP_MARKET',
         'side': against_side(side),
         'price': stop_loss_trigger_price,
         'amount': position_amount,
@@ -176,7 +176,8 @@ def execute_trade(pair, side, user):
             position_usdt_value = calculated_usdt_value if calculated_usdt_value >= min_price else min_price
 
             if calculated_usdt_value < min_price:
-                message = f"🧑‍🔧 Hey maximum margin not enough to execute current trade for {pair}, \nTherefor im going to execute it by <u>minimum value rule</u> from binance. "
+                # message = f"🧑‍🔧 Hey maximum margin not enough to execute current trade for {pair}, \nTherefor im going to execute it by <u>minimum value rule</u> from binance. "
+                message = f" 🚨💡 <b>{pair} Trade Alert!</b> 💡🚨 \n⚠️ Max margin not enough for the trade. Using Binance's min value rule. 📉🔧\nStay tuned! 📲💸"
                 telegram(user, message)
 
             position_size = position_usdt_value/last_price

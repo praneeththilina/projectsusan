@@ -24,6 +24,7 @@ class User(db.Model, fsqla.FsUserMixin):
     settings = db.relationship("UserSettings", uselist=False, back_populates="user")
     notifications = db.relationship('Notification', back_populates='user', cascade="all, delete-orphan")
     avatar = db.Column(db.String(50), default='avatar1.svg')
+    timezone = db.Column(db.String(50), nullable=True)
 
     def is_premium(self):
         return self.expire_date and self.expire_date > datetime.now()
@@ -82,7 +83,7 @@ class Trade(db.Model):
     comment = db.Column(db.String(10))
     orderid = db.Column(db.String(30))
     status = db.Column(db.String(10))
-    realized_pnl = db.Column(db.Integer)
+    realized_pnl = db.Column(db.Float, default='0.0')
     side = db.Column(db.String(4))  # 'buy' or 'sell'
     price = db.Column(db.Float)
     amount = db.Column(db.Float)

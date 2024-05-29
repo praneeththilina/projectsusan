@@ -20,18 +20,19 @@
                 <img height="100" width="100" src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" alt="Current Avatar" class="w-16 h-16 bg-gray-300 rounded-full">
                 {# <img height="100" width="100" class="w-16 h-16 bg-gray-300 rounded-full" src="{{ url_for('static', filename='img/avatar.svg') }}" alt="profile"> #}
                 <div>
-                    <p class="font-semibold">{{ current_user.email }}</p>
-                    <p class="text-sm text-gray-500">Joined: {{ current_user.confirmed_at }}</p>
+                      <span class="font-semibold">{{ current_user.username }}</span>
+                  <p class="text-sm text-gray-500">Last login:</p>
+                  <p class="text-sm text-gray-500">{{ format_last_login() }}</p>
                 </div>
             </div>
             <nav class="mt-4">
-                <a href="{{ url_for('main.index') }}" class= "block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.home' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Home</a>
-                <a href="{{ url_for('main.dashboard') }}" class= "block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.dashboard' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Dashboard</a>
-                <a href="{{ url_for('main.bulk_trade') }}" class= "block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.bulk_trade' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Bulk Trade</a>
-                <a href="{{ url_for('main.trade') }}" class= "block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.trade' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Trade</a>
-                <a href="{{ url_for('main.api_credentials') }}" class= "block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.api_credentials' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">API Set</a>
-                <a href="{{ url_for('main.request_premium_plan') }}" class= "block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.request_premium_plan' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Buy Package</a>
-                <a href="{{ url_for('main.settings') }}" class= "block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.settings' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Settings</a>
+                <a href="{{ url_for('main.index') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.home' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Home</a>
+                <a href="{{ url_for('main.dashboard') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.dashboard' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Dashboard</a>
+                <a href="{{ url_for('main.bulk_trade') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.bulk_trade' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Bulk Trade</a>
+                <a href="{{ url_for('main.trade') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.trade' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Trade</a>
+                <a href="{{ url_for('main.api_credentials') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.api_credentials' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">API Set</a>
+                <a href="{{ url_for('main.request_premium_plan') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.request_premium_plan' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Buy Package</a>
+                <a href="{{ url_for('main.settings') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.settings' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Settings</a>
                 
                 
                 <a href="{{ url_for('main.notifications') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">

@@ -13,6 +13,7 @@ from flask_mail import Mail
 from dotenv import load_dotenv
 from .config import Config
 from datetime import datetime
+from pytz import timezone
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -72,6 +73,17 @@ def create_app():
             PremiumRequest.rejected == False
         ).count()
         return dict(pending_count=pending_count)
+
+    @app.context_processor
+    def inject_user_timezone():
+        def format_last_login():
+            if current_user.is_authenticated and current_user.last_login_at:
+                user_timezone = timezone(current_user.timezone if current_user.timezone else 'UTC')
+                last_login_at = current_user.last_login_at.astimezone(user_timezone)
+                return last_login_at.strftime('%Y-%m-%d %H:%M')
+            return None
+        return dict(format_last_login=format_last_login)
+
 
     @app.context_processor
     def inject_notification_count():

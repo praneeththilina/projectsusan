@@ -1,4 +1,5 @@
 import os
+from pytz import timezone
 from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, jsonify
 from flask_security.decorators import permissions_accepted, auth_required,\
                     roles_accepted, roles_required
@@ -10,7 +11,7 @@ from . import limiter
 from trading_bot import execute_trade  # Your function to execute trades
 from datetime import datetime, timedelta
 from app.utils import get_ccxt_instance
-from .utils import flash_and_telegram, save_notification, telegram
+from .utils import flash_and_telegram, save_notification, telegram, convert_utc_to_local
 from . import db
 
 main = Blueprint('main', __name__)
@@ -229,6 +230,7 @@ def settings():
                 settings.defined_short_margine_per_trade = form.defined_short_margine_per_trade.data
                 settings.max_concurrent = form.concorrent.data
                 settings.tg_chatid = form.tg_chatid.data
+                current_user.timezone = form.timezone.data
                 db.session.commit()
 
                 message = (f"🚨<b>Your settings have changed!</b>\n\n Here are the new settings \n📌 TP Ratio : {settings.take_profit_percentage} %\n"
@@ -254,6 +256,11 @@ def settings():
         form.defined_short_margine_per_trade.data = current_user.settings.defined_short_margine_per_trade
         form.concorrent.data = current_user.settings.max_concurrent
         form.tg_chatid.data = current_user.settings.tg_chatid
+
+        if current_user.timezone:
+            form.timezone.data = current_user.timezone
+        else:
+            form.timezone.data = 'Asia/Colombo'  # Preselect Asia/Colombo if no timezone is set
         form.order_type.data = current_user.settings.order_type
 
     return render_template('settings.html', form=form, formavtar=formavtar)
@@ -264,7 +271,30 @@ def settings():
 def notifications():
     form = MarkAsReadForm()
     user_notifications = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).all()
-    return render_template('notifications.html', notifications=user_notifications, form = form)
+    
+    
+        # Fetch the user's timezone setting (default to UTC if not set)
+    user_timezone = timezone(current_user.timezone if current_user.timezone else 'UTC')
+    
+    # Fetch notifications and convert their timestamps
+    user_notifications = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).all()
+    notifications_data = [
+        {
+            'id': notification.id,
+            'user_id': notification.user_id,
+            'message': notification.message,
+            'created_at': notification.created_at.astimezone(user_timezone).strftime('%Y-%m-%d %H:%M:%S %Z'),
+            'read': notification.read
+        } for notification in user_notifications
+    ]
+    
+    return render_template('notifications.html', notifications=notifications_data, form=form)
+    # return render_template('notifications.html', notifications=user_notifications, form = form)
+
+
+
+
+
 
 @main.route('/mark_as_read/<int:notification_id>', methods=['POST'])
 @auth_required('token', 'session')
@@ -313,10 +343,13 @@ def get_trades():
         Trade.timestamp >= thirty_days_ago
     ).all()
     
+    # Fetch the user's timezone setting (default to UTC if not set)
+    user_timezone = timezone(current_user.timezone if current_user.timezone else 'UTC')
+
     # Prepare the trade data for JSON response
     trade_data = [
         {
-            'timestamp': trade.timestamp.isoformat(),
+            'timestamp': trade.timestamp.astimezone(user_timezone).strftime('%m-%d %H:%M:%S %Z'),
             'pair': trade.pair,
             'comment': trade.comment,
             'orderid': trade.orderid,
@@ -327,9 +360,9 @@ def get_trades():
             'amount': trade.amount
         } for trade in trades
     ]
-    
     # Return the data as JSON
     return jsonify(trade_data)
+
 
 
 # Views

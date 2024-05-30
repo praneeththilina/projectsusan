@@ -1,0 +1,106 @@
+<!-- templates/landing.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Susan - Your Ultimate Trading Companion</title>
+    {# <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"> #}
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    <style>
+        /* Add animations for page and card loading */
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+        .fade-in-up {
+            animation: fadeInUp 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900 fade-in">
+
+<!-- Navigation Bar -->
+<nav class="bg-white shadow-lg">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <a href="/" class="text-2xl font-bold text-blue-600">Project Susan</a>
+        <div>
+            {% if current_user.is_authenticated %}
+                <span class="text-gray-700 mx-2">Hello, {{ current_user.name }}</span>
+                <a href="{{ url_for('main.dashboard') }}" class="text-blue-600 hover:underline mx-2">Dashboard</a>
+                <img src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" alt="Avatar" class="w-10 h-10 rounded-full inline-block mx-2">
+            {% else %}
+                <a href="{{ url_for('security.login') }}" class="text-blue-600 hover:underline mx-2">Login</a>
+                <a href="{{ url_for('security.register') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="bg-blue-600 text-white py-20 fade-in-up">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl font-bold mb-4">Welcome to Project Susan</h1>
+        <p class="text-xl mb-8">Your Ultimate Trading Companion</p>
+        <a href="{{ url_for('security.register') }}" class="bg-white text-blue-600 px-6 py-3 rounded-full text-lg font-semibold hover:bg-gray-200">Get Started Now</a>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="container mx-auto px-4 py-20">
+    <h2 class="text-3xl font-bold text-center mb-10">Key Features</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div class="bg-white p-6 rounded-lg shadow-lg fade-in-up" style="background-image: url('/static/img/feature/1.jpg'); background-size: cover; background-position: center;">
+            <h3 class="text-xl font-semibold mt-4 text-white">Real-Time Market Data</h3>
+            <p class="mt-2 text-white">Stay ahead of the market with live updates and real-time data.</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg fade-in-up" style="background-image: url('/static/img/feature/2.jpg'); background-size: cover; background-position: center;">
+            <h3 class="text-xl font-semibold mt-4 text-white">Advanced Analytics & Reports</h3>
+            <p class="mt-2 text-white">Gain deep insights with our comprehensive analytics and detailed reports.</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg fade-in-up" style="background-image: url('/static/img/feature/3.jpg'); background-size: cover; background-position: center;">
+            <h3 class="text-xl font-semibold mt-4 text-white">Instant Notifications</h3>
+            <p class="mt-2 text-white">Get alerts for market movements, trade executions, and important updates.</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg fade-in-up" style="background-image: url('/static/img/feature/4.jpg'); background-size: cover; background-position: center;">
+            <h3 class="text-xl font-semibold mt-4 text-white">Top-Notch Security</h3>
+            <p class="mt-2 text-white">Your data is safe with us with state-of-the-art security measures.</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg fade-in-up" style="background-image: url('/static/img/feature/5.jpg'); background-size: cover; background-position: center;">
+            <h3 class="text-xl font-semibold mt-4 text-white">Automated Trading</h3>
+            <p class="mt-2 text-white">Let our advanced trading bots execute trades on your behalf.</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg fade-in-up" style="background-image: url('/static/img/feature/6.jpg'); background-size: cover; background-position: center;">
+            <h3 class="text-xl font-semibold mt-4 text-white">User-Friendly Interface</h3>
+            <p class="mt-2 text-white">Navigate effortlessly through features with our intuitive interface.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="bg-gray-800 text-white py-20 fade-in-up">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-4">Ready to Transform Your Trading Experience?</h2>
+        <p class="text-xl mb-8">Join the Project Susan community today and start your journey towards smarter, more profitable trading.</p>
+        <a href="{{ url_for('security.register') }}" class="bg-blue-600 text-white px-6 py-3 rounded-full text-lg font-semibold hover:bg-blue-700">Sign Up Now</a>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-white py-6 fade-in">
+    <div class="container mx-auto px-4 text-center">
+        <p class="text-gray-700">&copy; 2024 Project Susan. All rights reserved.</p>
+    </div>
+</footer>
+
+</body>
+</html>

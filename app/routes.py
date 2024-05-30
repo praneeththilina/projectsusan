@@ -24,11 +24,16 @@ TRADINGVIEW_PASSPHRASE = os.getenv('TRADINGVIEW_PASSPHRASE')
 # List of allowed IP addresses for TradingView webhook
 ALLOWED_IPS = ['52.89.214.238', '34.212.75.30', '54.218.53.128', '52.32.178.7']
 
+# @main.route('/')
+# def index():
+#     if current_user.is_authenticated:
+#         return redirect(url_for('main.dashboard'))
+#     return redirect(url_for('security.login'))
+
+
 @main.route('/')
 def index():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.dashboard'))
-    return redirect(url_for('security.login'))
+    return render_template('landing.html')
 
 @main.route('/dashboard')
 @auth_required('token', 'session')

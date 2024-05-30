@@ -9,10 +9,10 @@
 
     <title>Trading App</title>
 </head>
-<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white  fade-in">
   <div id="app" class="flex">
     <!-- Sidebar -->
-    <aside class="sidebar bg-white dark:bg-gray-800 p-4 flex flex-col justify-between rounded-lg">
+    <aside class="sidebar bg-white dark:bg-gray-800 p-4 flex flex-col justify-between rounded-lg  fade-in-left">
       <span>
           <!-- User Profile -->
           {% if current_user.is_authenticated %}
@@ -63,7 +63,7 @@
     <!-- Main Content -->
     <main class="content flex-1">
       {% include "security/_messages.html" %}
-      <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 w-full h-full max-w-screen-xl overflow-auto">
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 w-full h-full max-w-screen-xl overflow-auto fade-in-up">
         {% block content %}{% endblock content %}
       </div>
     </main>

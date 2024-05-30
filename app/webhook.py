@@ -65,7 +65,7 @@ def trade_alert():
             save_notification(user.id,message)
             # flash_and_telegram(user, f"Error executing trade: {str(e)}", category='error')
 
-    message = f"🚀 SusanBot Detected New Opportunity!! 🚨\n \n💡 New Signal: {pair} {'LONG' if side=='buy' else 'SHORT'} 💡\n \n🔄 Leverage: Isolated 10x\n\n🔢 Entry Price: {price}\n\n🎯 Take Profit: {(price + price*2/100) if side == 'buy' else (price - price*2/100)} (Success rate: 90%)\n\n⚠️ Stop Loss: {(price - price*2/100) if side == 'buy' else (price + price*2/100)} (Change it as your risk management)\n\n\n🌐 Join us at <u><i>projectsusan.pythonanywhere.com</i></u> for top-notch trading tools and auto-trading-ready signals!"       
+    message = f"🚀 SusanBot Detected New Opportunity!! 🚨\n \n💡 New Signal: {pair} {'LONG' if side=='buy' else 'SHORT'} 💡\n \n🔄 Leverage: Isolated 10x\n\n🔢 Entry Price: {price}\n\n🎯 Take Profit: {(price + price*2/100) if side == 'buy' else (price - price*2/100)} (Success rate: 90%)\n\n⚠️ Stop Loss: {(price - price*2/100) if side == 'buy' else (price + price*2/100)} (Change it as your risk management)\n\n\n🌐 Join us at <u><i>https://projectsusan.eu.pythonanywhere.com/</i></u> for top-notch trading tools and auto-trading-ready signals!"       
     send_telegram_message_group(message)
 
     return jsonify({"success": True}), 200

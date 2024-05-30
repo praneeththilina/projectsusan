@@ -104,6 +104,7 @@ class UserSettings(db.Model):
     defined_long_margine_per_trade = db.Column(db.Float,default='8.0', nullable = False)
     defined_short_margine_per_trade = db.Column(db.Float,default='8.0', nullable = False)
     max_concurrent = db.Column(db.Integer, default = '5')
+    margin_Mode = db.Column(db.String(10), default='cross')
     tg_chatid = db.Column(db.String(15), nullable=True )
     user = db.relationship("User", back_populates="settings")
 

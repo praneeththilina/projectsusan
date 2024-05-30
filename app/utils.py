@@ -20,9 +20,6 @@ def get_ccxt_instance(api_key, api_secret):
     return exchange
 
 
-
-
-
 def fetch_user_settings(user_id):
     return UserSettings.query.filter_by(user_id=user_id).first()
 

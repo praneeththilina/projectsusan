@@ -37,6 +37,7 @@ class SettingsForm(FlaskForm):
     defined_long_margine_per_trade = FloatField('Defined Margine Per Trade', validators=[DataRequired()])
     defined_short_margine_per_trade = FloatField('Defined Margine Per Trade', validators=[DataRequired()])
     tg_chatid = StringField('Telegram Chat ID', validators=[DataRequired()])
+    marginMode = SelectField('Margin mode', choices=[('cross', 'CROSS MODE'), ('isolated', 'ISOLATED MODE')], validators=[DataRequired()], default='cross')
     timezone = SelectField('Timezone', choices=timezone_choices, validators=[DataRequired()], default='Asia/Colombo')
 
     submit = SubmitField('Save')

@@ -50,7 +50,8 @@ def dashboard():
                                 defined_long_margine_per_trade='5',
                                 defined_short_margine_per_trade='5',
                                 max_concurrent = '5',
-                                leverage='10'
+                                leverage='10',
+                                margin_Mode = 'cross'
                                 )  # type: ignore
         try:
             db.session.add(settings)
@@ -235,10 +236,13 @@ def settings():
                 settings.defined_short_margine_per_trade = form.defined_short_margine_per_trade.data
                 settings.max_concurrent = form.concorrent.data
                 settings.tg_chatid = form.tg_chatid.data
+                settings.margin_Mode = form.marginMode.data
                 current_user.timezone = form.timezone.data
+
+                
                 db.session.commit()
 
-                message = (f"🚨<b>Your settings have changed!</b>\n\n Here are the new settings \n📌 TP Ratio : {settings.take_profit_percentage} %\n"
+                message = (f"🚨<b>Your settings have changed!</b>\n\n Here are the new settings\n📌 Selected Margin Mode : {settings.margin_Mode.upper()}  \n📌 TP Ratio : {settings.take_profit_percentage} %\n"
                            f"📌 SL Ratio : {settings.stop_loss_percentage} %\n📌 Allowed Margin for Long trade ( $ ) : {settings.defined_long_margine_per_trade} $ \n📌 Allowed Margin for Short trade ( $ ) : {settings.defined_short_margine_per_trade} $\n"
                            f"📌 Fixed Leverage : {settings.leverage}x\n📌 Max Concurrent trades limit: {settings.max_concurrent}  ")
                 telegram(current_user, message)
@@ -261,6 +265,7 @@ def settings():
         form.defined_short_margine_per_trade.data = current_user.settings.defined_short_margine_per_trade
         form.concorrent.data = current_user.settings.max_concurrent
         form.tg_chatid.data = current_user.settings.tg_chatid
+        form.marginMode.data = current_user.settings.margin_Mode 
 
         if current_user.timezone:
             form.timezone.data = current_user.timezone

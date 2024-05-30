@@ -40,7 +40,7 @@ def place_otoco_order(exchange, pair, order_type, side, position_amount, price, 
     #     'amount': position_amount,
     #     'price': price,
     #     'params': {
-    #         'marginMode': 'isolated',
+    #         'marginMode': margin_mode,
     #         'positionSide': positionSide,
     #         'reduceOnly' : 'false',
     #     }
@@ -56,10 +56,9 @@ def place_otoco_order(exchange, pair, order_type, side, position_amount, price, 
         'amount': position_amount,
         'params': {
             'stopPrice': stop_loss_trigger_price,
-            'marginMode': 'isolated',
+            # 'marginMode': margin_mode,
             'positionSide': positionSide,
             'timeInForce' : 'GTE_GTC',
-            'reduceOnly' : 'true',
             'workingType' : 'CONTRACT_PRICE' #'MARK_PRICE'
 
         }
@@ -75,10 +74,9 @@ def place_otoco_order(exchange, pair, order_type, side, position_amount, price, 
         'amount': position_amount,
         'params': {
             'stopPrice': take_profit_trigger_price,
-            'marginMode': 'isolated',
+            # 'marginMode': margin_mode,
             'positionSide': positionSide,
             'timeInForce' : 'GTE_GTC',
-            'reduceOnly' : 'true',
             'workingType' : 'CONTRACT_PRICE'# 'MARK_PRICE'            
         }
     }
@@ -160,15 +158,17 @@ def execute_trade(pair, side, user):
 
             
             order_type = user_settings.order_type
+            margin_mode = user_settings.margin_Mode
             saved_leverage = user_settings.leverage
             long_allowcated_margin = user_settings.defined_long_margine_per_trade 
             short_allowcated_margin = user_settings.defined_short_margine_per_trade
 
+
             exchange.set_leverage(saved_leverage, pair)
             print(f"leverage :{exchange.set_leverage(saved_leverage, pair)}")
 
-            exchange.set_margin_mode(marginMode='ISOLATED' , symbol=pair)
-            print(f"set_margin_mode :{exchange.set_margin_mode(marginMode='ISOLATED' , symbol=pair)}")
+            current_margin_mode =  exchange.set_margin_mode(marginMode=margin_mode , symbol=pair)
+            print(f"set_margin_mode :{current_margin_mode}")
 
             trade_amount =  long_allowcated_margin if side=='buy' else short_allowcated_margin
             calculated_usdt_value = trade_amount * saved_leverage
@@ -205,7 +205,7 @@ def execute_trade(pair, side, user):
             take_profit_trigger_price = (last_price if order_type == 'market' else price) * ((1+(user_settings.take_profit_percentage/100)) if side == 'buy' else (1-(user_settings.take_profit_percentage/100)))
 
             params = {
-                'marginMode' : 'isolated',
+                'marginMode' : margin_mode,
                 'positionSide': positionSide
             }
             position_amount = market['contractSize'] * position_size
@@ -224,7 +224,7 @@ def execute_trade(pair, side, user):
                 created_order = None
             
                 # ------------------------------
-                created_order = exchange.create_order(pair, order_type, side, position_amount, price, params= {'marginMode' : 'isolated','positionSide': positionSide,})
+                created_order = exchange.create_order(pair, order_type, side, position_amount, price, params= {'marginMode' : margin_mode,'positionSide': positionSide,})
                 order_response = place_otoco_order(exchange, pair, order_type, side, position_amount, price, stop_loss_trigger_price, take_profit_trigger_price, positionSide)
                 print(f"created order : {created_order}")
                 print(f"tp sl: {order_response}")

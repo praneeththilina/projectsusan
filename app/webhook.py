@@ -31,7 +31,7 @@ def trade_alert():
         pair = pair[:-2]
 
     side = data['side'].lower()
-    price = data['price']
+    price = float(data['price'])
     quantity = data['quantity']
 
     if not pair or not side or not passphrase:

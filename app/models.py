@@ -17,17 +17,22 @@ class User(db.Model, fsqla.FsUserMixin):
     public_id = db.Column(db.String(256), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     _api_key = db.Column(db.String(256), nullable=True)
     _api_secret = db.Column(db.String(256), nullable=True)
-    premium_plan_id = db.Column(db.Integer, db.ForeignKey('premium_plan.id'))
-    premium_plan = db.relationship('PremiumPlan', backref='users')
     expire_date = db.Column(db.DateTime)
-    premium_request_id = db.Column(db.Integer)
     settings = db.relationship("UserSettings", uselist=False, back_populates="user")
     notifications = db.relationship('Notification', back_populates='user', cascade="all, delete-orphan")
     avatar = db.Column(db.String(50), default='avatar1.svg')
     timezone = db.Column(db.String(50), nullable=True)
+    terms_accepted = db.Column(db.Boolean, default=False)
+    terms_accepted_at = db.Column(db.DateTime)
+    _fuel_balance = db.Column(db.Integer, default=0, nullable=True)
 
-    def is_premium(self):
-        return self.expire_date and self.expire_date > datetime.now()
+    @property
+    def fuel_balance(self):
+        return self._fuel_balance
+
+    @fuel_balance.setter
+    def fuel_balance(self, value):
+        self._fuel_balance = value
 
 
     @property
@@ -46,30 +51,33 @@ class User(db.Model, fsqla.FsUserMixin):
     def api_secret(self, value):
         self._api_secret = encrypt(value)
         
-class PremiumPlan(db.Model):
+    def __str__(self):
+        return self.username
+
+
+class BotFuelPackage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80))
-    valid_days = db.Column(db.Integer)
+    name = db.Column(db.String(80), nullable=False)
+    amount = db.Column(db.Integer, nullable=False)
+    cost_usdt = db.Column(db.Float, nullable=False)
 
     def __str__(self):
         return self.name
 
-class PremiumRequest(db.Model):
+class BotFuelTransaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User', backref='requests')
-    plan_id = db.Column(db.Integer, db.ForeignKey('premium_plan.id'))
-    plan = db.relationship('PremiumPlan', backref='requests')
-    created_at = db.Column(db.DateTime, default=datetime.now)
-    approved = db.Column(db.Boolean, default=False)
-    approved_at = db.Column(db.DateTime, nullable=True)
-    rejected = db.Column(db.Boolean, default=False)
-    rejected_at = db.Column(db.DateTime, nullable=True)
+    user = db.relationship('User', backref='fuel_transactions')
+    package_id = db.Column(db.Integer, db.ForeignKey('bot_fuel_package.id'))
+    package = db.relationship('BotFuelPackage', backref='transactions')
+    payment_method = db.Column(db.String(20), nullable=False)
+    pay_id = db.Column(db.String(80), nullable=True)
+    timestamp = db.Column(db.DateTime, default=datetime.now)
+    successful = db.Column(db.Boolean, default=False)
 
     def __str__(self):
-        return f"Request by {self.user.username} for {self.plan.name}"
-
-
+        return f"Transaction by {self.user.username} for {self.package.name}"
+    
 class TradingStrategy(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
@@ -82,7 +90,7 @@ class Trade(db.Model):
     pair = db.Column(db.String(30))
     comment = db.Column(db.String(10))
     orderid = db.Column(db.String(30))
-    status = db.Column(db.String(10))
+    status = db.Column(db.String(15))
     realized_pnl = db.Column(db.Float, default='0.0')
     side = db.Column(db.String(4))  # 'buy' or 'sell'
     price = db.Column(db.Float)

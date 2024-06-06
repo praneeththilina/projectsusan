@@ -37,7 +37,10 @@ def create_daily_summary():
         
         # Calculate total PNL and number of trades
         total_pnl = sum(trade.realized_pnl for trade in trades)
-        total_trades = len(trades)
+        # Filter for 'MARKET' comments using list comprehension
+        market_trades = [trade for trade in trades if trade.comment == 'MARKET']
+
+        total_trades = len(market_trades)
         
         # Prepare message
         message = (

@@ -36,7 +36,7 @@ def create_app():
     csrf.init_app(app)
     mail.init_app(app)
 
-    from .models import User, Role, PremiumRequest, Notification, PremiumPlan
+    from .models import User, Role, Notification, BotFuelPackage, BotFuelTransaction
 
     user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role) # type: ignore
     security = Security(app, user_datastore)
@@ -68,9 +68,8 @@ def create_app():
 
     @app.context_processor
     def inject_pending_count():
-        pending_count = PremiumRequest.query.filter(
-            PremiumRequest.approved == False,
-            PremiumRequest.rejected == False
+        pending_count = BotFuelTransaction.query.filter(
+            BotFuelTransaction.successful == False
         ).count()
         return dict(pending_count=pending_count)
 
@@ -107,6 +106,14 @@ def create_app():
                 admin_role = user_datastore.create_role(name='admin', permissions='admin-read, admin-write')
                 db.session.add(admin_role)
             
+            if not BotFuelPackage.query.all():
+                packages = [
+                    BotFuelPackage(name='Small Pack', amount=100, cost_usdt=10), # type: ignore
+                    BotFuelPackage(name='Medium Pack', amount=300, cost_usdt=30), # type: ignore
+                    BotFuelPackage(name='Large Pack', amount=1000, cost_usdt=100) # type: ignore
+                ]
+                db.session.bulk_save_objects(packages)            
+            
             db.session.commit()
 
             if not User.query.filter_by(email='admin@mail.com').first():
@@ -120,21 +127,6 @@ def create_app():
             
             db.session.commit()
 
-            
-            # Add PremiumPlan data
-            if not PremiumPlan.query.filter_by(name='1 Month').first():
-                plan_1_month = PremiumPlan(name='1 Month', valid_days=30) # type: ignore
-                db.session.add(plan_1_month)
-
-            if not PremiumPlan.query.filter_by(name='2 Months').first():
-                plan_2_months = PremiumPlan(name='2 Months', valid_days=60) # type: ignore
-                db.session.add(plan_2_months)
-
-            if not PremiumPlan.query.filter_by(name='3 Months').first():
-                plan_3_months = PremiumPlan(name='3 Months', valid_days=90) # type: ignore
-                db.session.add(plan_3_months)
-
-            db.session.commit()
-            
+                    
     return app
 

@@ -6,140 +6,237 @@
     <meta name="keywords" content="trading bot, Flask, CCXT, SQLAlchemy, cryptocurrency trading, automated trading">
     <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/datatables.min.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+    <style>
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
 
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        @media (max-width: 768px) {
+            .navbar .menu {
+                display: none;
+            }
+            .navbar .menu-btn {
+                display: block;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .navbar .menu-btn {
+                display: none;
+            }
+        }
+
+        .mobile-menu {
+            display: none;
+        }
+
+        .mobile-menu.active {
+            display: block;
+            position: absolute;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            z-index: 999;
+        }
+
+        .mobile-menu a {
+            display: block;
+            padding: 12px 16px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
     <title>Trading App</title>
 </head>
-<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white  fade-in">
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white fade-in">
   <div id="app" class="flex">
+      <!-- Top Navigation Bar -->
+
+<nav class="navbar bg-white dark:bg-gray-800 p-4 shadow-lg fixed w-full flex items-center justify-between z-50">
+    <div class="flex items-center">
+        <button id="mobile-menu-button" class="menu-btn text-gray-800 dark:text-white mr-4">☰</button>
+        <span class="text-lg font-semibold text-gray-800 dark:text-white">Trading App</span>
+    </div>
+    <div class="menu flex items-center space-x-4">
+        <div id="fuelContainer" class="flex items-center bg-gray-300 dark:bg-gray-700 rounded-lg p-2 shadow-lg">
+            <img src="{{ url_for('static', filename='img/fuel.svg') }}" alt="fuel" class="w-6 h-6 animate-fuel">
+            <p id="fuelBalance" class="text-sm text-gray-900 dark:text-white ml-2">Loading...</p>
+        </div>
+        <div class="flex items-center bg-gray-300 dark:bg-gray-700 rounded-lg p-2 shadow-lg">
+            <div class="relative">
+            <a href="{{ url_for('main.notifications') }}">
+                {% if notification_count %}
+                    <img src="{{ url_for('static', filename='img/notification.png') }}" alt="Notification" class="h-6 w-6 text-gray-500 dark:text-white">
+                    <span class="bg-red-500 text-white rounded-full px-1 py-0.5 text-xs absolute top-0 right-0">{{ notification_count }}</span>
+                {% else %}
+                    <img src="{{ url_for('static', filename='img/bell.png') }}" alt="Bell" class="h-6 w-6 text-gray-500 dark:text-white">
+                {% endif %}
+                </a>
+            </div>
+        </div>
+
+      <!-- Dark Mode Toggle Button -->
+      <div class="flex justify-center">
+          <button id="theme-toggle" class="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white py-2 px-4 rounded-lg transition duration-200 shadow-lg">
+              Toggle Dark Mode
+          </button>
+     </div>
+
+        <div class="dropdown relative">
+            <img src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" alt="Current Avatar" class="w-10 h-10 bg-gray-300 rounded-full cursor-pointer">
+            <div class="dropdown-content right-0 bg-white dark:bg-gray-700 border shadow-md">
+                <a href="{{ url_for('main.settings') }}" class="flex items-center py-2 px-4 text-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
+                    Settings
+                </a>
+                <a href="{{ url_for('security.logout') }}" class="flex items-center py-2 px-4 text-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
+                    Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
     <!-- Sidebar -->
-    <aside class="sidebar bg-white dark:bg-gray-800 p-4 flex flex-col justify-between rounded-lg  fade-in-left">
-      <span>
+  <aside class="sidebar mt-12 bg-white dark:bg-gray-800 p-4 flex flex-col justify-between rounded-lg fade-in-left z-10"> <!-- Add z-10 -->
+       <div>
           <!-- User Profile -->
           {% if current_user.is_authenticated %}
-            <div class="flex items-center space-x-4">
-                <img height="100" width="100" src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" alt="Current Avatar" class="w-16 h-16 bg-gray-300 rounded-full">
-                {# <img height="100" width="100" class="w-16 h-16 bg-gray-300 rounded-full" src="{{ url_for('static', filename='img/avatar.svg') }}" alt="profile"> #}
-                <div>
-                      <span class="font-semibold">{{ current_user.username }}</span>
-                  <p class="text-sm text-gray-500">Last login:</p>
-                  <p class="text-sm text-gray-500">{{ format_last_login() }}</p>
-                </div>
-            </div>
             <nav class="mt-4">
-                <a href="{{ url_for('main.index') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.home' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Home</a>
-                <a href="{{ url_for('main.dashboard') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.dashboard' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Dashboard</a>
-                <a href="{{ url_for('main.bulk_trade') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.bulk_trade' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Bulk Trade</a>
-                <a href="{{ url_for('main.trade') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.trade' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Trade</a>
-                <a href="{{ url_for('main.api_credentials') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.api_credentials' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">API Set</a>
-                <a href="{{ url_for('main.request_premium_plan') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.request_premium_plan' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Buy Package</a>
-                <a href="{{ url_for('main.settings') }}" class="block py-2.5 px-4 rounded transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.settings' else 'text-gray-800 dark:text-gray-300 ' }} hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Settings</a>
-                
-                
-                <a href="{{ url_for('main.notifications') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">
-                  Notifications
-                  {% if notification_count %}
-                      <span class="bg-red-500 text-white rounded-full px-2 py-1 text-xs ml-2">{{ notification_count }}</span>
-                  {% endif %}
-                </a>
+                <a href="{{ url_for('main.index') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.home' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white">Home</a>
+                <a href="{{ url_for('main.dashboard') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.dashboard' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white">Dashboard</a>
+                <a href="{{ url_for('main.trade') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.trade' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white">Trade</a>
+                <a href="{{ url_for('main.api_credentials') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.api_credentials' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white">Connect Exchange</a>
+                <a href="{{ url_for('main.purchase_fuel') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.purchase_fuel' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white">Buy Bot Fuel</a>
                 {% if current_user.has_role('admin') %}
-                  <a href="{{ url_for('main.admin_review_plan_requests') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">
-                    Pack Approvals
-                    {% if pending_count %}
-                        <span class="bg-red-500 text-white rounded-full px-2 py-1 text-xs ml-2">{{ pending_count }}</span>
-                    {% endif %}
-                  </a>
+                <a href="{{ url_for('main.bulk_trade') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.bulk_trade' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white">Bulk Trade</a>
+                    <a href="{{ url_for('main.admin_bot_fuel_requests') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">
+                        Bot Fuel Approval
+                        {% if pending_count %}
+                            <span class="bg-red-500 text-white rounded-full px-2 py-1 text-xs ml-2">{{ pending_count }}</span>
+                        {% endif %}
+                    </a>
                 {% endif %}
             </nav>
           {% endif %}
-      </span>
-      <!-- Logout Button -->
-      <a href="{{ url_for('security.logout') }}" class="logout-btn flex items-center py-1 px-2 rounded transition duration-200 hover:bg-gray-700 dark:hover:bg-gray-900">
-          <svg class="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm10-7a1 1 0 10-2 0v5a1 1 0 002 0V3zm0 8a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd" />
-          </svg>
-          Logout
-      </a>
+      </div>
+
+
     </aside>
     <!-- Main Content -->
-    <main class="content flex-1">
+    <main class="content mt-12">
       {% include "security/_messages.html" %}
-      <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 w-full h-full max-w-screen-xl overflow-auto fade-in-up">
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 max-w-screen-xl  fade-in-up">
         {% block content %}{% endblock content %}
       </div>
     </main>
   </div>
 
-  <!-- Mobile Menu Button -->
-  <button id="mobile-menu-button" class="fixed top-4 right-4 z-50 bg-gray-800 w-10 h-10 text-white rounded-full md:hidden">
-    ☰
-  </button>
-
   <!-- Mobile Modal -->
-  <div id="mobile-menu-modal" class="modal">
-  
-    <div class="modal-content  bg-white text-gray-700 dark:bg-gray-700 dark:text-white ">
-      <span class="close">×</span>
-      
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="mobile-menu bg-white dark:bg-gray-800 p-4 shadow-lg fixed w-full z-50">
       <nav>
-        <a href="{{ url_for('main.index') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Home</a>
-        <a href="{{ url_for('main.dashboard') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Dashboard</a>
-        <a href="{{ url_for('main.bulk_trade') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Bulk Trade</a>
-        <a href="{{ url_for('main.trade') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Trade</a>
-        <a href="{{ url_for('main.api_credentials') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">API Set</a>
-        <a href="{{ url_for('main.request_premium_plan') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Buy Package</a>
-        {% if current_user.has_role('admin') %}
-          <a href="{{ url_for('main.admin_review_plan_requests') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">Pack Approvals</a>
-        {% endif %}
-        <a href="{{ url_for('security.logout') }}" class="logout-btn block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 dark:hover:bg-gray-900">Logout</a>
+          <a href="{{ url_for('main.index') }}" class="block py-2.5 px-4">Home</a>
+          <a href="{{ url_for('main.dashboard') }}" class="block py-2.5 px-4">Dashboard</a>
+          <a href="{{ url_for('main.bulk_trade') }}" class="block py-2.5 px-4">Bulk Trade</a>
+          <a href="{{ url_for('main.trade') }}" class="block py-2.5 px-4">Trade</a>
+          <a href="{{ url_for('main.api_credentials') }}" class="block py-2.5 px-4">Connect Exchange</a>
+          <a href="{{ url_for('main.purchase_fuel') }}" class="block py-2.5 px-4">Buy Bot Fuel</a>
+          {% if current_user.has_role('admin') %}
+            <a href="{{ url_for('main.admin_bot_fuel_requests') }}" class="block py-2.5 px-4">Bot Fuel Approvals</a>
+          {% endif %}
+          <a href="{{ url_for('main.settings') }}" class="block py-2.5 px-4">Settings</a>
+          <a href="{{ url_for('security.logout') }}" class="block py-2.5 px-4">Logout</a>
       </nav>
-    </div>
   </div>
 
-<button id="theme-toggle" class="floating-toggle w-10 h-10 text-white rounded-full bg-gray-200 dark:bg-gray-600 transition duration-200 shadow-md">
-  <img id="theme-toggle-icon" height="" width="" class="w-6 h-6 mx-auto my-auto" src="{{ url_for('static', filename='img/sun.svg') }}" alt="Theme Toggle Icon">
-</button>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
   <script>
     function updateThemeIcon() {
-      const icon = document.getElementById('theme-toggle-icon');
-      if (document.documentElement.classList.contains('dark')) {
-          icon.src = "{{ url_for('static', filename='img/moon.svg') }}";
-      } else {
-          icon.src = "{{ url_for('static', filename='img/sun.svg') }}";
-      }
+        const icon = document.getElementById('theme-toggle');
+        if (document.documentElement.classList.contains('dark')) {
+            icon.innerText = 'Switch to Light Mode';
+        } else {
+            icon.innerText = 'Switch to Dark Mode';
+        }
     }
 
     document.getElementById('theme-toggle').addEventListener('click', () => {
-      document.documentElement.classList.toggle('dark');
-      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-      updateThemeIcon();
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        updateThemeIcon();
     });
 
     // On page load
     if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
+        document.documentElement.classList.add('dark');
     }
     updateThemeIcon();
     window.onload = updateThemeIcon;
 
     // Mobile Menu Button
     const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenuModal = document.getElementById('mobile-menu-modal');
-    const closeModal = document.querySelector('.modal .close');
+    const mobileMenu = document.getElementById('mobile-menu');
 
     mobileMenuButton.addEventListener('click', () => {
-      mobileMenuModal.classList.toggle('active');
-    });
-
-    closeModal.addEventListener('click', () => {
-      mobileMenuModal.classList.remove('active');
+        mobileMenu.classList.toggle('active');
     });
 
     window.onclick = (event) => {
-      if (event.target === mobileMenuModal) {
-        mobileMenuModal.classList.remove('active');
-      }
+        if (!event.target.matches('#mobile-menu-button') && !event.target.closest('.mobile-menu')) {
+            mobileMenu.classList.remove('active');
+        }
     }
+
+    // Check Fuel Balance
+    async function checkFuelBalance() {
+        try {
+            const response = await fetch('/check_fuel');
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            const data = await response.json();
+            const fuelBalance = data.fuel_balance;
+            const fuelBalanceElement = document.getElementById('fuelBalance');
+            const fuelContainer = document.getElementById('fuelContainer');
+
+            fuelBalanceElement.innerText = `${fuelBalance}`;
+
+            fuelContainer.classList.remove('bg-gray-300', 'dark:bg-gray-700', 'bg-green-500', 'bg-green-200', 'bg-red-500', 'text-gray-900', 'text-white');
+
+            if (fuelBalance > 100) {
+                fuelContainer.classList.add('bg-green-500', 'text-white');
+            } else if (fuelBalance > 50) {
+                fuelContainer.classList.add('bg-gray-300', 'text-gray-900');
+            } else {
+                fuelContainer.classList.add('bg-gray-300', 'dark:bg-gray-700', 'text-gray-900');
+            }
+        } catch (error) {
+            document.getElementById('fuelBalance').innerText = 'Failed! ' + error.message;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', checkFuelBalance);
   </script>
 </body>
 </html>

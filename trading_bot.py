@@ -1,5 +1,6 @@
 from app import db
 from flask import current_app
+from datetime import datetime
 from pprint import pprint
 from app.models import Trade
 from app.utils import get_ccxt_instance, fetch_user_settings, fetch_balance, \
@@ -136,6 +137,12 @@ def execute_trade(pair, side, user):
         if not user_settings:
             raise Exception("User settings not found")
         
+
+        fuel_balance = user._fuel_balance
+        if fuel_balance < 10:
+            raise Exception('Not enough bot fuel to execute trade.')
+
+
         # my settings---------------------------------------------------------------------
 
         allwed_concurrent_tarde_limit = user_settings.max_concurrent
@@ -229,6 +236,10 @@ def execute_trade(pair, side, user):
                 print(f"created order : {created_order}")
                 print(f"tp sl: {order_response}")
                 
+                # Deduct fuel and execute trade
+                user.fuel_balance -= 10
+                db.session.commit()
+
 
                 # Extract relevant details
                 extracted_orders = []

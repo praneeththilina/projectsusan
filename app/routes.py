@@ -1,12 +1,12 @@
 import os
 from pytz import timezone
-from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, jsonify
+from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, jsonify, request
 from flask_security.decorators import permissions_accepted, auth_required,\
                     roles_accepted, roles_required
 from flask_login import login_required, current_user, logout_user
 
-from .forms import TradeForm, APIForm, RequestPremiumPlanForm, SettingsForm, MarkAsReadForm,AvatarSelectionForm
-from .models import User, PremiumPlan, PremiumRequest, UserSettings, Notification, Trade 
+from .forms import TradeForm, APIForm, SettingsForm, MarkAsReadForm,AvatarSelectionForm, PurchaseFuelForm
+from .models import User, UserSettings, Notification, Trade, BotFuelPackage, BotFuelTransaction
 from . import limiter
 from trading_bot import execute_trade  # Your function to execute trades
 from datetime import datetime, timedelta
@@ -15,7 +15,7 @@ from .utils import flash_and_telegram, save_notification, telegram, convert_utc_
 from . import db
 
 main = Blueprint('main', __name__)
-# limiter = Limiter('main',default_limits=["200 per day", "50 per hour"])  
+# limiter = Limiter('main',default_limits=["200 per day", "50 per hour"])
 # limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 
 # Load the passphrase from environment variables
@@ -34,6 +34,82 @@ ALLOWED_IPS = ['52.89.214.238', '34.212.75.30', '54.218.53.128', '52.32.178.7']
 @main.route('/')
 def index():
     return render_template('landing.html')
+
+@main.route('/purchase_fuel', methods=['GET', 'POST'])
+@auth_required('token', 'session')
+def purchase_fuel():
+    form = PurchaseFuelForm()
+    if form.validate_on_submit():
+        package = BotFuelPackage.query.get(form.package.data)
+        if package:
+            transaction = BotFuelTransaction(
+                user=current_user,
+                package=package,
+                payment_method=form.payment_method.data,
+                pay_id=form.pay_id.data
+            ) # type: ignore
+            db.session.add(transaction)
+            current_user.fuel_balance += package.amount
+        db.session.commit()
+        flash('Fuel purchase successful. Your fuel balance has been updated.', 'success')
+        return redirect(url_for('main.dashboard'))
+    return render_template('purchase_fuel.html', form=form)
+
+@main.route('/check_fuel')
+@auth_required('token', 'session')
+def check_fuel():
+    fuel_balance = current_user.fuel_balance
+    return jsonify({"fuel_balance": fuel_balance})
+
+@main.route('/admin/bot_fuel_requests', methods=['GET', 'POST'])
+@auth_required('token', 'session')
+@roles_accepted('admin')
+@permissions_accepted("admin-write")
+def admin_bot_fuel_requests():
+    transactions = BotFuelTransaction.query.all()
+    return render_template('admin_bot_fuel_requests.html', transactions=transactions)
+
+@main.route('/admin/approve_request/<int:transaction_id>', methods=['POST'])
+@auth_required('token', 'session')
+@roles_accepted('admin')
+@permissions_accepted("admin-write")
+def approve_request(transaction_id):
+    transaction = BotFuelTransaction.query.get(transaction_id)
+    if transaction and not transaction.successful:
+        transaction.successful = True
+        transaction.user.fuel_balance += transaction.package.amount
+        db.session.commit()
+        flash('Request approved and fuel added to the user account.', 'success')
+        msg = f'''
+            ✅✨ Bot Fuel Request Approved! ✨✅
+            \nHello {transaction.user.email} ,\n
+            \nCongratulations! 🎉 Your bot fuel request has been approved! You're all set to fire up those trades with your new fuel. Your current fuel balance is {transaction.user._fuel_balance} Happy trading! 💰📈'''
+        
+        telegram(transaction.user, msg)
+    return redirect(url_for('main.admin_bot_fuel_requests'))
+
+@main.route('/admin/reject_request/<int:transaction_id>', methods=['POST'])
+@auth_required('token', 'session')
+@roles_accepted('admin')
+@permissions_accepted("admin-write")
+def reject_request(transaction_id):
+    transaction = BotFuelTransaction.query.get(transaction_id)
+    if transaction:
+        db.session.delete(transaction)
+        db.session.commit()
+        flash('Request rejected and removed.', 'success')
+        msg = f'''
+            🛑 Bot Fuel Request Rejected! 🛑
+            \nHello {transaction.user.email} ,\n
+            \nWe regret to inform you that your request for bot fuel has been rejected. 😔
+            \nIf you have any questions or concerns, please feel free to reach out to us.
+            \nThank you for your understanding. 🙏'''
+        
+        telegram(transaction.user, msg)
+    return redirect(url_for('main.admin_bot_fuel_requests'))
+
+
+
 
 @main.route('/dashboard')
 @auth_required('token', 'session')
@@ -82,14 +158,42 @@ def trade():
 
         # Execute the trade
         order = execute_trade(pair=form.pair.data, side=form.side.data, user=current_user)
-  
+
         flash('Trade executed successfully!', 'success')
         return redirect(url_for('main.dashboard'))
     return render_template('trade.html', form=form)
 
+# @main.route('/api_credentials', methods=['GET', 'POST'])
+# @auth_required('token', 'session')
+# def api_credentials():
+#     form = APIForm()
+#     if form.validate_on_submit():
+#         api_key = form.api_key.data
+#         api_secret = form.api_secret.data
+#         exchange = get_ccxt_instance(api_key, api_secret)
+
+#         try:
+#             exchange.fetch_balance()  # Verify API credentials
+#             current_user.api_key = api_key
+#             current_user.api_secret = api_secret
+#             db.session.commit()
+#             telegram(current_user, f'🚨 <b>API credentials receintly updated!</b> \n\nHey {current_user.email}!,  Make sure about these changes by you.')
+#             flash('API credentials receintly updated!', 'success')
+#             return redirect(url_for('main.dashboard'))
+#         except Exception as e:
+#             flash(f'Invalid API credentials: {e}', 'error')
+#             telegram(current_user, f'🚨 <b>Invalid API credentials!</b> \n\nHey {current_user.email}!,  Are you trying to <b><u>add|change</u></b> API keys in your account? <b>I think it is not a valid one. 🤦‍♀️</b> \n<u>Try again</u>. Here is error data \n{str(e)}')
+
+
+#     return render_template('api_credentials.html', form=form)
+
 @main.route('/api_credentials', methods=['GET', 'POST'])
 @auth_required('token', 'session')
 def api_credentials():
+    # Check if the user has accepted the terms and conditions
+    if not current_user.terms_accepted:
+        return redirect(url_for('main.accept_terms'))
+
     form = APIForm()
     if form.validate_on_submit():
         api_key = form.api_key.data
@@ -101,15 +205,37 @@ def api_credentials():
             current_user.api_key = api_key
             current_user.api_secret = api_secret
             db.session.commit()
-            telegram(current_user, f'🚨 <b>API credentials receintly updated!</b> \n\nHey {current_user.email}!,  Make sure about these changes by you.')
-            flash('API credentials receintly updated!', 'success')
+            telegram(current_user, f'🚨 <b>API credentials recently updated!</b> \n\nHey {current_user.email}!,  Make sure about these changes by you.')
+            flash('API credentials recently updated!', 'success')
             return redirect(url_for('main.dashboard'))
         except Exception as e:
             flash(f'Invalid API credentials: {e}', 'error')
             telegram(current_user, f'🚨 <b>Invalid API credentials!</b> \n\nHey {current_user.email}!,  Are you trying to <b><u>add|change</u></b> API keys in your account? <b>I think it is not a valid one. 🤦‍♀️</b> \n<u>Try again</u>. Here is error data \n{str(e)}')
 
-    
     return render_template('api_credentials.html', form=form)
+
+
+@main.route('/accept_terms', methods=['GET', 'POST'])
+@auth_required('token', 'session')
+def accept_terms():
+    if request.method == 'POST':
+        data = request.get_json()
+        if data is None:
+            return jsonify({'success': False, 'message': 'No JSON data received.'}), 400
+
+        accept = data.get('accept', False)
+        if accept:
+            current_user.terms_accepted = True
+            current_user.terms_accepted_at = datetime.now()
+            db.session.commit()
+            return jsonify({'success': True})
+        else:
+            current_user.terms_accepted = False
+            current_user.terms_accepted_at = None
+            db.session.commit()
+            return jsonify({'success': False, 'message': 'Terms must be accepted to use the service.'})
+    
+    return render_template('terms.html')
 
 
 @main.route('/bulk_trade', methods=['GET', 'POST'])
@@ -128,91 +254,6 @@ def bulk_trade():
                 flash('Bulk trade executed successfully!', 'success')
         return redirect(url_for('main.dashboard'))
     return render_template('bulk_trade.html', form=form)
-
-
-@main.route('/request_premium_plan', methods=['GET', 'POST'])
-@auth_required('token', 'session')
-@limiter.limit("100 per day", key_func=lambda: current_user.id)
-def request_premium_plan():
-    plans = PremiumPlan.query.all()
-    form = RequestPremiumPlanForm(plans)
-    user_requests = PremiumRequest.query.filter_by(user_id=current_user.id).order_by(PremiumRequest.created_at.desc()).limit(5).all()
-
-    if form.validate_on_submit():
-        user = current_user
-        plan_id = form.plan.data
-        existing_request = PremiumRequest.query.filter_by(user_id=user.id, approved=False, rejected=False).first()
-        if existing_request:
-            flash_and_telegram(user, 'You already have a pending request.', 'warning')
-            return redirect(url_for('main.dashboard'))
-        request = PremiumRequest(user_id=user.id, plan_id=plan_id) # type: ignore
-        db.session.add(request)
-        db.session.commit()
-        flash_and_telegram(user, 'Premium plan request submitted for review.', 'success')
-
-        return redirect(url_for('main.dashboard'))
-    return render_template('request_premium_plan.html', form=form, user_requests=user_requests)
-
-
-@main.route('/admin/plan_requests')
-@auth_required('token', 'session')
-@roles_accepted('admin')
-@permissions_accepted("admin-write")
-def admin_review_plan_requests():
-    requests = PremiumRequest.query.filter(
-        PremiumRequest.approved == False,
-        PremiumRequest.rejected == False
-    ).order_by(PremiumRequest.created_at.desc()).all()
-    pending_count = PremiumRequest.query.filter(
-        PremiumRequest.approved == False,
-        PremiumRequest.rejected == False
-    ).count()
-    return render_template('admin_plan_requests.html', requests=requests, pending_count=pending_count)
-
-
-@main.route('/admin/approve_plan/<int:request_id>')
-@auth_required('token', 'session')
-@roles_accepted('admin')
-@permissions_accepted("admin-write")
-def admin_approve_plan(request_id):
-    request = PremiumRequest.query.get(request_id)
-    if request:
-        user = request.user
-        plan = request.plan
-        user.premium_plan_id = plan.id
-        user.expire_date = datetime.now() + timedelta(days=plan.valid_days)
-        user.premium_request_id = request.id
-        request.approved = True
-        request.approved_at = datetime.now()
-        db.session.commit()
-
-        message = f'Your premium plan request has been approved.'
-        save_notification(user_id=user.id, message=message)
-        telegram(user, message)
-        flash('Approved', 'success')
-    else:
-        flash('Invalid request.', 'error')
-    return redirect(url_for('main.admin_review_plan_requests'))
-
-
-@main.route('/admin/reject_plan/<int:request_id>')
-@auth_required('token', 'session')
-@roles_accepted('admin')
-@permissions_accepted("admin-write")
-def admin_reject_plan(request_id):
-    request = PremiumRequest.query.get(request_id)
-    if request:
-        user = request.user
-        request.rejected = True
-        request.rejected_at = datetime.now()
-        db.session.commit()
-        message = f'Premium plan request has been rejected.'
-        save_notification(user_id=user.id, message=message)
-        flash_and_telegram(user, message, 'error')
-
-    else:
-        flash('Invalid request.')
-    return redirect(url_for('main.admin_review_plan_requests'))
 
 @main.route('/settings', methods=['GET', 'POST'])
 @auth_required('token', 'session')
@@ -239,7 +280,7 @@ def settings():
                 settings.margin_Mode = form.marginMode.data
                 current_user.timezone = form.timezone.data
 
-                
+
                 db.session.commit()
 
                 message = (f"🚨<b>Your settings have changed!</b>\n\n Here are the new settings\n📌 Selected Margin Mode : {settings.margin_Mode.upper()}  \n📌 TP Ratio : {settings.take_profit_percentage} %\n"
@@ -265,7 +306,7 @@ def settings():
         form.defined_short_margine_per_trade.data = current_user.settings.defined_short_margine_per_trade
         form.concorrent.data = current_user.settings.max_concurrent
         form.tg_chatid.data = current_user.settings.tg_chatid
-        form.marginMode.data = current_user.settings.margin_Mode 
+        form.marginMode.data = current_user.settings.margin_Mode
 
         if current_user.timezone:
             form.timezone.data = current_user.timezone
@@ -281,11 +322,11 @@ def settings():
 def notifications():
     form = MarkAsReadForm()
     user_notifications = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).all()
-    
-    
+
+
         # Fetch the user's timezone setting (default to UTC if not set)
     user_timezone = timezone(current_user.timezone if current_user.timezone else 'UTC')
-    
+
     # Fetch notifications and convert their timestamps
     user_notifications = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).all()
     notifications_data = [
@@ -297,7 +338,7 @@ def notifications():
             'read': notification.read
         } for notification in user_notifications
     ]
-    
+
     return render_template('notifications.html', notifications=notifications_data, form=form)
     # return render_template('notifications.html', notifications=user_notifications, form = form)
 
@@ -321,7 +362,7 @@ def mark_as_read(notification_id):
     else:
         flash('Form validation failed.', 'error')
     return redirect(url_for('main.notifications'))
-    
+
 
 # @main.route('/data/trades')
 # def get_trades():
@@ -342,24 +383,48 @@ def mark_as_read(notification_id):
 #     return jsonify(trade_data)
 
 
+
 @main.route('/data/trades')
 def get_trades():
     # Calculate the date 30 days ago from today
     thirty_days_ago = datetime.now() - timedelta(days=30)
-    
+
     # Query for trades from the last 30 days
     trades = Trade.query.filter(
         Trade.user_id == current_user.id,
         Trade.timestamp >= thirty_days_ago
     ).all()
-    
+
+
+    # Filter Running Trades
+    running_trades = [trade for trade in trades if (trade.comment == "TAKE_PROFIT" or trade.comment == "TAKE_PROFI") and trade.status == "open"]
+    print(len(running_trades))
+
+    #Filter relevent trades
+    relevant_trades = [trade for trade in trades if (trade.comment == "TAKE_PROFIT" or trade.comment == "TAKE_PROFI")]
+
+    winning_trades =  sum(1 for trade in relevant_trades if trade.realized_pnl > 0)
+    print((winning_trades))
+
+    # Count winning trades (assuming a positive realized_pnl indicates a win)
+    # winning_trades = sum(1 for trade in market_trades if trade.realized_pnl > 0)
+
+    # Calculate win rate
+    win_rate = "{:.2f}".format((winning_trades / (len(relevant_trades) - len(running_trades))) * 100 if len(relevant_trades) > 0 else 0)
+    print(win_rate)
+
+
+
     # Fetch the user's timezone setting (default to UTC if not set)
     user_timezone = timezone(current_user.timezone if current_user.timezone else 'UTC')
+
+
+
 
     # Prepare the trade data for JSON response
     trade_data = [
         {
-            'timestamp': trade.timestamp.astimezone(user_timezone).strftime('%m-%d %H:%M:%S %Z'),
+            'timestamp': trade.timestamp.astimezone(user_timezone),#.strftime('%y-%m-%d %H:%M:%S %Z'),
             'pair': trade.pair,
             'comment': trade.comment,
             'orderid': trade.orderid,
@@ -370,9 +435,14 @@ def get_trades():
             'amount': trade.amount
         } for trade in trades
     ]
-    # Return the data as JSON
-    return jsonify(trade_data)
 
+        # Additional data to send
+    additional_data = {
+        'win-rate': win_rate
+        # Add more data here if needed
+    }
+    # Return the data as JSON
+    return jsonify({'trades': trade_data, 'additional_data': additional_data})
 
 
 # Views
@@ -381,7 +451,7 @@ def confirmation_success():
     success_message = request.args.get('success')
     email = request.args.get('email')
     identity = request.args.get('identity')
-    
+
     # You can customize this template or message according to your requirements
     return render_template('server_err/confirmation_success.html', success_message=success_message, email=email, identity=identity)
 

@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, SubmitField, DateTimeField, SelectField, HiddenField,\
             RadioField, IntegerField
 from wtforms.validators import DataRequired, NumberRange, ValidationError
+from .models import BotFuelPackage
 import pytz
 
 
@@ -18,15 +19,17 @@ class TradeForm(FlaskForm):
 class APIForm(FlaskForm):
     api_key = StringField('API Key', validators=[DataRequired()])
     api_secret = StringField('API Secret', validators=[DataRequired()])
-    submit = SubmitField('Save API Keys')
+    submit = SubmitField('Bind with Binance')
 
-class RequestPremiumPlanForm(FlaskForm):
-    plan = SelectField('Premium Plan', choices=[])
-    submit = SubmitField('Request Plan')
+class PurchaseFuelForm(FlaskForm):
+    package = SelectField('Fuel Package', choices=[], validators=[DataRequired()])
+    payment_method = SelectField('Payment Method', choices=[('Binance Pay', 'Binance Pay'), ('Crypto Address', 'Crypto Address')], validators=[DataRequired()])
+    pay_id = StringField('Pay ID')
+    submit = SubmitField('Purchase Fuel')
 
-    def __init__(self, plans, *args, **kwargs):
-        super(RequestPremiumPlanForm, self).__init__(*args, **kwargs)
-        self.plan.choices = [(plan.id, plan.name) for plan in plans]
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.package.choices = [(pkg.id, pkg.name) for pkg in BotFuelPackage.query.all()]
 
 class SettingsForm(FlaskForm):
     take_profit_percentage = FloatField('Take Profit Percentage', validators=[DataRequired(), NumberRange(min=0, max=100)],render_kw={"class": "percentage-input", "type": "number", "step": "any"})

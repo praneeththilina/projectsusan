@@ -139,8 +139,7 @@ def fetch_trade_status(exchange, order_id, pair):
 
         # Sum the realized PnL for the filtered trades
         total_realized_pnl = sum(float(trade['info']['realizedPnl']) for trade in filtered_trades)
-        
-        
+
         print(f'closed total_realized_pnl: {total_realized_pnl}')
 
         print('--------------------------')

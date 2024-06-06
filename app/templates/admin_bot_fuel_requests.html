@@ -1,0 +1,78 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-semibold mb-6">Bot Fuel Requests</h2>
+    <div class="overflow-x-auto">
+        <table id="fuelRequestsTable" class="min-w-full bg-white dark:bg-gray-800 rounded-lg shadow-md">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2">ID</th>
+                    <th class="px-4 py-2">Email</th>
+                    <th class="px-4 py-2">Package</th>
+                    <th class="px-4 py-2">Payment Method</th>
+                    <th class="px-4 py-2">Pay ID</th>
+                    <th class="px-4 py-2">Status</th>
+                    <th class="px-4 py-2">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr class="border-t border-gray-200 dark:border-gray-700">
+                    <td class="px-4 py-2">{{ transaction.id }}</td>
+                    <td class="px-4 py-2">{{ transaction.user.email }}</td>
+                    <td class="px-4 py-2">{{ transaction.package.name }}</td>
+                    <td class="px-4 py-2">{{ transaction.payment_method }}</td>
+                    <td class="px-4 py-2">{{ transaction.pay_id }}</td>
+                    <td class="px-4 py-2">
+                        {% if transaction.successful %}
+                        <span class="text-green-500">Approved</span>
+                        {% else %}
+                        <span class="text-red-500">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2">
+                        {% if not transaction.successful %}
+                        <form method="post" action="{{ url_for('main.approve_request', transaction_id=transaction.id) }}" class="inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-150 ease-in-out">
+                                Approve
+                            </button>
+                        </form>
+                        <form method="post" action="{{ url_for('main.reject_request', transaction_id=transaction.id) }}" class="inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-150 ease-in-out">
+                                Reject
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Include DataTables and jQuery -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#fuelRequestsTable').DataTable({
+            responsive: true,
+            columnDefs: [
+                { targets: 2, orderable: false }
+            ]
+        });
+    });
+    
+</script>
+
+
+
+{% endblock %}

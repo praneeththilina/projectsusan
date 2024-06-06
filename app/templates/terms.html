@@ -1,0 +1,218 @@
+<!-- terms.html -->
+{% extends "layout.html" %}
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 w-full max-w-lg mx-auto mt-12">
+    <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Terms and Conditions</h2>
+    <p id="readTermsMessage" class="text-blue-500 dark:text-blue-300 mb-4 cursor-pointer">
+        Please <strong>click here</strong> to read and accept the terms and conditions to proceed.
+    </p>
+
+    <div id="termsSection" class="overflow-auto max-h-60">
+        <!-- Display the terms and conditions with coding font -->
+        <p class="text-gray-700 dark:text-gray-300 mb-4 font-mono">
+            <!-- Apply the font-mono class to use a monospaced font -->
+            <strong>Terms and Conditions</strong><br>
+            1. <u>Introduction</u><br>
+
+            Welcome to Project Susan Crypto Trading Bot service. These Terms and Conditions ("Terms") govern your use of our crypto trading bot platform, accessible via [website URL] (the "Platform"). By accessing or using our Platform, you agree to be bound by these Terms. If you do not agree with these Terms, you must not use our Platform.<br>
+            <br>
+            2. <u>Eligibility</u><br>
+
+            You must be at least 18 years old and have the legal capacity to enter into a binding agreement to use our Platform. By using our Platform, you represent and warrant that you meet these requirements.<br>
+            <br>
+            3. <u>Account Registration</u><br>
+
+            To use our Platform, you must register for an account. During registration, you agree to provide accurate and complete information. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.
+            <br>
+            <br>
+            4. <u>Use of the Platform</u><br>
+
+            - Permitted Use: You may use the Platform solely for your personal, non-commercial use to manage and execute cryptocurrency trades.<br>
+            - Prohibited Use: You agree not to:<br>
+            - Use the Platform for any illegal or unauthorized purpose.<br>
+            - Interfere with or disrupt the operation of the Platform.<br>
+            - Attempt to gain unauthorized access to any part of the Platform.<br>
+            - Use the Platform to distribute malware or other harmful code.
+            <br>
+            <br>
+            5. <u>Trading Alerts and Webhooks</u><br>
+
+            Our Platform integrates with TradingView alerts via webhooks to execute trades on your behalf on Binance Futures. By using this feature, you acknowledge and agree that:
+            <br>
+            - You are solely responsible for configuring and managing your TradingView alerts.<br>
+            - The accuracy and execution of trades depend on the alerts you set up.<br>
+            - We are not responsible for any errors, delays, or failures in the execution of trades.<br>
+            <br>
+            <br>
+            6. <u>Risks of Cryptocurrency Trading</u><br>
+
+            Cryptocurrency trading involves significant risks, including but not limited to:<br>
+
+            - Market volatility and price fluctuations.<br>
+            - Liquidity risks and potential loss of funds.<br>
+            - Regulatory changes and legal risks.<br>
+            - Technical risks related to blockchain technology and cryptocurrency exchanges.<br>
+
+            You acknowledge and accept these risks and agree that [Your Company Name] is not liable for any losses you may incur as a result of using our Platform.
+            <br>
+            <br>
+            7. <u>Fees and Payments</u><br>
+
+            - Service Fees: We may charge fees for using certain features of our Platform. The applicable fees will be disclosed to you before you incur any charges.<br>
+            - Payment Methods: You agree to pay all fees using the payment methods we accept, and you authorize us to charge your chosen payment method for such fees.<br>
+            <br>
+            <br>
+            8. <u>Privacy Policy</u><br>
+
+            Your use of our Platform is also governed by our Privacy Policy, which can be found at [Privacy Policy URL]. By using our Platform, you consent to the collection, use, and sharing of your information as described in our Privacy Policy.
+            <br>
+            <br>
+            9. <u>Intellectual Property</u><br>
+
+            All content and materials on the Platform, including but not limited to text, graphics, logos, and software, are the property of [Your Company Name] or its licensors and are protected by intellectual property laws. You may not use, reproduce, or distribute any content from the Platform without our express written permission.
+            <br>
+            <br>
+            10. <u>Disclaimer of Warranties</u><br>
+
+            Our Platform is provided on an "as is" and "as available" basis. We do not warrant that the Platform will be uninterrupted, error-free, or secure. To the fullest extent permitted by law, we disclaim all warranties, whether express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, and non-infringement.
+            <br>
+            <br>
+            11. <u>Limitation of Liability</u><br>
+
+            > Praneeth Thilina:<br>
+            To the fullest extent permitted by law, [Your Company Name] shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses, resulting from:<br>
+
+            - Your use of or inability to use the Platform.<br>
+            - Any unauthorized access to or use of our servers and/or any personal information stored therein.<br>
+            - Any errors or omissions in the Platform's content.<br>
+            - Any third-party conduct on the Platform.<br>
+            <br>
+            <br>
+            12. <u>Indemnification</u><br>
+
+            You agree to indemnify, defend, and hold harmless [Your Company Name] and its affiliates, officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including reasonable attorney's fees, arising out of or in any way connected with your use of the Platform or your violation of these Terms.
+            <br>
+            <br>
+            13. <u>Changes to the Terms</u><br>
+
+            We reserve the right to modify these Terms at any time. If we make material changes to the Terms, we will provide notice through the Platform or by other means. Your continued use of the Platform after the effective date of the modified Terms constitutes your acceptance of the changes.
+            <br>
+            <br>
+            14. <u>Termination<br></u>
+
+            We may suspend or terminate your access to the Platform at any time, for any reason, without prior notice or liability to you. Upon termination, your right to use the Platform will immediately cease.
+            <br>
+            <br>
+            15. <u>Governing Law and Dispute Resolution<br></u>
+
+            These Terms shall be governed by and construed in accordance with the laws of [Your Jurisdiction]. Any disputes arising out of or relating to these Terms or the Platform shall be resolved through binding arbitration in accordance with the rules of [Arbitration Association], and the arbitration shall take place in [Location].
+            <br>
+            <br>
+            16. <u>Contact Information<br></u>
+
+            If you have any questions or concerns about these Terms, please contact us at:<br>
+
+            - Email: support@[yourcompanyname].com<br>
+            - Address: [Your Company Name], [Your Address]<br>
+
+            By using our Platform, you acknowledge that you have read, understood, and agreed to these Terms and Conditions.<br>
+
+            ---
+        </p>
+    </div>
+
+    <div class="flex mt-2 justify-end">
+        <button id="rejectTerms" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2">Reject</button>
+        <button id="acceptTerms" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Accept</button>
+    </div>
+</div>
+
+<style>
+    /* Scrollable terms section */
+    #termsSection {
+        max-height: 300px; /* Set the maximum height */
+        overflow-y: auto; /* Enable vertical scrolling */
+    }
+
+    /* Change link color */
+    #readTermsMessage {
+        color: #3182ce; /* Change to desired link color */
+    }
+
+    /* Apply coding font to terms and conditions text */
+    .font-mono {
+        font-family: 'Fira Code', monospace; /* Use Fira Code or your desired coding font */
+    }
+</style>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const acceptTerms = document.getElementById("acceptTerms");
+        const rejectTerms = document.getElementById("rejectTerms");
+
+        // Get CSRF token
+        const csrfToken = "{{ csrf_token() }}";
+
+        // Handle acceptance of terms
+        acceptTerms.addEventListener("click", function() {
+            fetch('/accept_terms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ accept: true })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/api_credentials';  // Redirect to the API credentials page
+                } else {
+                    alert(data.message || "An error occurred.");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred.");
+            });
+        });
+
+        // Handle rejection of terms
+        rejectTerms.addEventListener("click", function() {
+            fetch('/accept_terms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ accept: false })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("You must accept the terms and conditions to use this service.");
+                } else {
+                    alert(data.message || "An error occurred.");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred.");
+            });
+        });
+    });
+</script>
+
+<script>
+    // Add event listeners for accept and reject buttons as shown in the previous example
+
+    // Add event listener for the "Please read and accept" message
+    document.getElementById('readTermsMessage').addEventListener('click', function() {
+        document.getElementById('termsSection').style.display = 'block';
+    });
+</script>
+
+{% endblock content %}

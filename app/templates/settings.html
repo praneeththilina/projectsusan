@@ -1,164 +1,256 @@
-{% extends "layout.html" %}
+{% extends "layout2.html" %}
+{% block title %}Settings | Project Susan{% endblock title %}
 {% block content %}
-<div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 w-full mx-auto">
-    <h2 class="text-2xl font-semibold mb-4">User Settings</h2>
-    <div class="flex flex-col items-center">
-        <img height="" width="" src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" alt="Current Avatar" class="w-24 h-24 rounded-full mb-4 cursor-pointer" id="current-avatar">
-        <form method="post" class="w-full max-w-lg">
-            {{ form.hidden_tag() }}
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="mb-4">
-                    <label class="block text-gray-700 dark:text-gray-100">Leverage</label>
-                    <div class="relative">
-                        {{ form.leverage(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
-                        <span class="absolute right-2 top-1/2 transform -translate-y-1/2   dark:text-gray-800">x</span>
-                    </div>
-                    {% if form.leverage.errors %}
-                    <p class="text-red-500 text-xs italic">{{ form.leverage.errors[0] }}</p>
-                    {% endif %}
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700  dark:text-gray-100">Take Profit Percentage</label>
-                    <div class="relative">
-                        {{ form.take_profit_percentage(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
-                        <span class="absolute right-2 top-1/2 transform -translate-y-1/2  dark:text-gray-800">%</span>
-                    </div>
-                    {% if form.take_profit_percentage.errors %}
-                    <p class="text-red-500 text-xs italic">{{ form.take_profit_percentage.errors[0] }}</p>
-                    {% endif %}
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700  dark:text-gray-100">Stop Loss Percentage</label>
-                    <div class="relative">
-                        {{ form.stop_loss_percentage(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
-                        <span class="absolute right-2 top-1/2 transform -translate-y-1/2  dark:text-gray-800">%</span>
-                    </div>
-                    {% if form.stop_loss_percentage.errors %}
-                    <p class="text-red-500 text-xs italic">{{ form.stop_loss_percentage.errors[0] }}</p>
-                    {% endif %}
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 dark:text-gray-100">Custom Margin for Longs</label>
-                    <div class="relative">
-                        {{ form.defined_long_margine_per_trade(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
-                        <span class="absolute right-2 top-1/2 transform -translate-y-1/2  dark:text-gray-800">$</span>
-                    </div>
-                    {% if form.defined_long_margine_per_trade.errors %}
-                    <p class="text-red-500 text-xs italic">{{ form.defined_long_margine_per_trade.errors[0] }}</p>
-                    {% endif %}
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 dark:text-gray-100">Custom Margin for Shorts</label>
-                    <div class="relative">
-                        {{ form.defined_short_margine_per_trade(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
-                        <span class="absolute right-2 top-1/2 transform -translate-y-1/2  dark:text-gray-800">$</span>
-                    </div>
-                    {% if form.defined_short_margine_per_trade.errors %}
-                    <p class="text-red-500 text-xs italic">{{ form.defined_short_margine_per_trade.errors[0] }}</p>
-                    {% endif %}
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 dark:text-gray-100">Concurrent Trades Limit</label>
-                    <div class="relative">
-                        {{ form.concorrent(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
-                        <span class="absolute right-2 top-1/2 transform -translate-y-1/2  dark:text-gray-800"></span>
-                    </div>
-                    {% if form.concorrent.errors %}
-                    <p class="text-red-500 text-xs italic">{{ form.concorrent.errors[0] }}</p>
-                    {% endif %}
-                </div>
+    <!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Settings</h4>
 
-                <div class="mb-4">
-                    <label class="block text-gray-700 dark:text-gray-100">Order Type</label>
-                    <div>
-                        {{ form.order_type(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
-                    </div>
-                    {% if form.order_type.errors %}
-                    <p class="text-red-500 text-xs italic">{{ form.order_type.errors[0] }}</p>
-                    {% endif %}
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 dark:text-gray-100">Telegram Chat ID</label>
-                    <div>
-                        {{ form.tg_chatid(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
-                    </div>
-                    {% if form.tg_chatid.errors %}
-                    <p class="text-red-500 text-xs italic">{{ form.tg_chatid.errors[0] }}</p>
-                    {% endif %}
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 dark:text-gray-100">Margin Mode</label>
-                    <div>
-                        {{ form.marginMode(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
-                    </div>
-                    {% if form.marginMode.errors %}
-                    <p class="text-red-500 text-xs italic">{{ form.marginMode.errors[0] }}</p>
-                    {% endif %}
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 dark:text-gray-100">TimeZone</label>
-                    <div>
-                        {{ form.timezone(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
-                    </div>
-                    {% if form.timezone.errors %}
-                    <p class="text-red-500 text-xs italic">{{ form.timezone.errors[0] }}</p>
-                    {% endif %}
-                </div>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Configs</a></li>
+                    <li class="breadcrumb-item active">Settings</li>
+                </ol>
             </div>
-            <div class="flex items-center justify-between">
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                    Save Settings
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
-    <!-- Avatar Modal -->
-    <div class="fixed z-10 inset-0 overflow-y-auto hidden" id="avatar-modal">
-        <div class="flex items-center justify-center min-h-screen text-center sm:block sm:p-0">
-            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">​</span>
-            <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-lg sm:w-full">
-                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-300 flex justify-between">
-                                <span>Change Avatar</span>
-                                <button id="close-modal" class="text-gray-400 hover:text-gray-600">×</button>
-                            </h3>
-                            <div class="mt-2">
-                                <form method="post" id="avatar-form">
-                                    {{ formavtar.hidden_tag() }}
-                                    <div class="grid grid-cols-3 gap-4">
-                                        {% for subfield in formavtar.avatar %}
-                                            <label class="block text-center cursor-pointer">
-                                                {{ subfield }}
-                                                <img height="" width="" alt="avatar" src="{{ url_for('static', filename='avatars/' ~ subfield.label.text) }}" class="w-16 h-16 mx-auto mt-2">
-                                            </label>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="text-center mt-4">
-                                        {{ formavtar.submit(class_="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:shadow-outline") }}
-                                    </div>
-                                </form>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body p-4">
+                <!-- Grids in modals -->
+                <div class="profile-user position-relative d-inline-block mx-auto  mb-4">
+                    <img src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" class="rounded-circle avatar-xl img-thumbnail user-profile-image" alt="user-profile-image" height="" width="">
+                    <div class="avatar-xs p-0 rounded-circle profile-photo-edit">
+                        <label for="profile-img-file-input" class="profile-photo-edit avatar-xs">
+                            <span class="avatar-title rounded-circle bg-light text-body" data-bs-toggle="modal" data-bs-target="#exampleModalgrid"> 
+                                <i class="ri-camera-fill"></i>
+                            </span>
+                            
+                        </label>
+                    </div>
+                </div>
+                <div class="modal fade" id="exampleModalgrid" tabindex="-1" aria-labelledby="exampleModalgridLabel" aria-modal="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalgridLabel">Grid Modals</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mt-4">
+                                    <form method="post" id="avatar-form">
+                                        {{ formavtar.hidden_tag() }}
+                                        <div class="row align-items-center mb-3">
+                                            
+                                                {% for subfield in formavtar.avatar %}
+                                                <div class="col-sm-4 mb-3">
+                                                    <label class="form-check form-radio-primary cursor-pointer">
+                                                        {{ subfield }}
+                                                        <img height="" width="" alt="avatar" src="{{ url_for('static', filename='avatars/' ~ subfield.label.text) }}" class="avatar-sm">
+                                                    </label>
+                                                </div>
+                                                {% endfor %}
+                                        </div>
+                                        <div class="text-center mt-6">
+                                            {{ formavtar.submit(class_="btn btn-danger w-100") }}
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- End Grids in modals -->
             </div>
         </div>
     </div>
-    <!-- End of Avatar Modal -->
-
-    <script>
-        document.getElementById('current-avatar').addEventListener('click', function() {
-            document.getElementById('avatar-modal').classList.remove('hidden');
-        });
-
-        document.getElementById('close-modal').addEventListener('click', function() {
-            document.getElementById('avatar-modal').classList.add('hidden');
-        });
-    </script>
 </div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3>Trade Settings</h3>
+            </div>
+            <div class="card-body">
+            
+            <form method="post" class="w-full">
+            {{ form.hidden_tag() }}
+            <div class="row">
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text col-6">Leverage</span>
+                        {{ form.leverage(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="bx bx-x text-danger fs-22"></i></span>
+                            {% if form.leverage.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.leverage.errors[0] }}</p>
+                            {% endif %}
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text col-6">SL Method</span>
+                        {{ form.sl_method(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="las la-compress p-right-4 fs-22 text-info"></i></span>
+                        {% if form.sl_method.errors %}
+                            <p class="text-red-500 text-xs italic mt-1">{{ form.sl_method.errors[0] }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text col-6">Callback Rate</span>
+                        {{ form.trailing_callback_ratio(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="las la-percent text-success fs-22"></i></span>
+                        {% if form.trailing_callback_ratio.errors %}
+                            <p class="text-red-500 text-xs italic mt-1">{{ form.trailing_callback_ratio.errors[0] }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text col-6  bg-success text-white">TP1 Ratio</span>
+                        {{ form.take_profit_percentage(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="las la-percent text-success fs-22"></i></span>
+                            {% if form.take_profit_percentage.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.take_profit_percentage.errors[0] }}</p>
+                            {% endif %}
+                    </div>
+                </div> 
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text col-6  bg-success text-white">TP2 Ratio</span>
+                        {{ form.take_profit_percentage2(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="las la-percent text-success fs-22"></i></span>
+                            {% if form.take_profit_percentage2.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.take_profit_percentage2.errors[0] }}</p>
+                            {% endif %}
+                    </div>
+                </div> 
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text col-6  bg-success text-white">TP1 Hit Close Ratio</span>
+                        {{ form.tp1_close_ratio(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="las la-percent text-success fs-22"></i></span>
+                            {% if form.tp1_close_ratio.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.tp1_close_ratio.errors[0] }}</p>
+                            {% endif %}
+                    </div>
+                </div> 
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text col-6  bg-success text-white">TP2 Hit Close Ratio</span>
+                        {{ form.tp2_close_ratio(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="las la-percent text-success fs-22"></i></span>
+                            {% if form.tp2_close_ratio.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.tp2_close_ratio.errors[0] }}</p>
+                            {% endif %}
+                    </div>
+                </div> 
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text col-6  bg-danger text-white">SL Ratio</span>
+                        {{ form.stop_loss_percentage(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="las la-percent text-danger fs-22"></i></span>
+                            {% if form.stop_loss_percentage.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.stop_loss_percentage.errors[0] }}</p>
+                            {% endif %}
+                    </div>
+                </div> 
+
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text col-6">Long Margin</span>
+                        {{ form.defined_long_margine_per_trade(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="las la-dollar-sign text-success fs-22"></i></span>
+                            {% if form.defined_long_margine_per_trade.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.defined_long_margine_per_trade.errors[0] }}</p>
+                            {% endif %}
+                    </div>
+                </div> 
+
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text col-6">Short Margin</span>
+                        {{ form.defined_short_margine_per_trade(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="las la-dollar-sign text-success fs-22"></i></span>
+                            {% if form.defined_short_margine_per_trade.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.defined_short_margine_per_trade.errors[0] }}</p>
+                            {% endif %}
+                    </div>
+                </div> 
+
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text col-6">Max Concurrents</span>
+                        {{ form.concorrent(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="las la-building p-right-4 fs-22 text-info"></i></span>
+                            {% if form.concorrent.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.concorrent.errors[0] }}</p>
+                            {% endif %}
+                    </div>
+                </div> 
+                
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text col-6">Order Type</span>
+                        {{ form.order_type(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="las la-compress p-right-4 fs-22 text-info"></i></span>
+                            {% if form.order_type.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.order_type.errors[0] }}</p>
+                            {% endif %}
+                    </div>
+                </div> 
+                
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text bg-info text-white col-6">Telegram Chat Id </span>
+                        {{ form.tg_chatid(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="bx bxl-telegram p-right-4 fs-22 text-info"></i></span>
+                            {% if form.tg_chatid.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.tg_chatid.errors[0] }}</p>
+                            {% endif %}
+                    </div>
+                </div> 
+
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text bg-info text-white col-6">Margin Mode</span>
+                        {{ form.marginMode(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="las la-chart-line text-success fs-22"></i></span>
+                            {% if form.marginMode.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.marginMode.errors[0] }}</p>
+                            {% endif %}
+                    </div>
+                </div> 
+
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text bg-info text-white col-6">TimeZone</span>
+                        {{ form.timezone(class="form-control col-6") }}
+                        <span class="input-group-text"><i class="las la-clock text-success fs-22"></i></span>
+                            {% if form.timezone.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.timezone.errors[0] }}</p>
+                            {% endif %}
+                    </div>
+                </div> 
+
+                    <button class="btn btn-danger" type="submit"  id="borderedToast1Btn">
+                        Save Settings
+                    </button>
+
+
+            </div>
+            </form>
+            
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock content %}

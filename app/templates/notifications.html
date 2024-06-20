@@ -1,24 +1,66 @@
 <!-- notifications.html -->
-{% extends "layout.html" %}
+{% extends "layout2.html" %}
+{% block title %}Notifications | Project Susan {% endblock title %}
 {% block content %}
-<div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 w-full mx-auto">
-    <h2 class="text-2xl font-semibold mb-4">Notifications</h2>
-    <ul class="space-y-4">
-        {% for notification in notifications %}
-            <li class="p-4 rounded-lg {{ 'bg-slate-200 dark:bg-slate-600' if notification.read else 'bg-blue-200 dark:bg-blue-700' }}">
-                <div class="flex justify-between items-center">
-                    <span>{{ notification.message }}</span>
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Notifications</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Actions</a></li>
+                    <li class="breadcrumb-item active">Notifications</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<h3>Notifications</h3>
+<div class="row">    
+    {% for notification in notifications %}
+    <div class="col-lg-6 col-sm-12">
+        <div class="card">
+            <div class="card ribbon-box border shadow-none mb-lg-0">
+                <div class="card-body">
                     {% if not notification.read %}
-                        <form method="post" action="{{ url_for('main.mark_as_read', notification_id=notification.id) }}">
-                            {{ form.hidden_tag() }}
-                            {{ form.notification_id(value=notification.id) }}
-                            {{ form.submit(class_="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:shadow-outline") }}
-                        </form>
+                        <div class="ribbon ribbon-primary round-shape">New</div>
                     {% endif %}
+                    <div class="ribbon-content mt-4 text-muted">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                {% if notification.read %}
+                                    <i class="ri-checkbox-circle-fill text-success"></i>
+                                {% elif not notification.read %}
+                                    <i class="ri-checkbox-circle-fill text-info"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1 ms-2 text-muted">
+                            <p>{{ notification.message }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="float-end">
+                            {% if not notification.read %}
+                                <form method="post" action="{{ url_for('main.mark_as_read', notification_id=notification.id) }}">
+                                    {{ form.hidden_tag() }}
+                                    {{ form.notification_id(value=notification.id) }}
+                                    {# {{ form.submit(class_="btn btn-info") }} #}
+                                    <button type="submit" class="btn btn-info btn-icon">
+                                        <i class="ri-eye-line"></i> <!-- Replace with the desired icon -->
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                        <p class="text-muted mb-0">
+                            <span><i class="mdi mdi-clock-outline"></i> {{ notification.created_at }}</span>
+                        </p>
+
+                    </div>
                 </div>
-                <small class="text-gray-600 dark:text-gray-400">{{ notification.created_at }}</small>
-            </li>
-        {% endfor %}
-    </ul>
+            </div>
+        </div>
+    </div>    
+    {% endfor %}
 </div>
 {% endblock content %}

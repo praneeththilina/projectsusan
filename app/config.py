@@ -58,3 +58,21 @@ class Config:
     MAIL_USE_SSL = True
     MAIL_USERNAME = 'praneeth.thilina1991@gmail.com'
     MAIL_PASSWORD = 'wesn wuzk buoa vagr'
+    DEBUG= True        # some Flask specific configs
+    CACHE_TYPE= "SimpleCache" # Flask-Caching related configs
+    CACHE_DEFAULT_TIMEOUT= 300
+    # # Set Content Security Policy (CSP) header
+    # csp_header = {
+    #     "default-src": "'self'",
+    #     "style-src": "'self' 'unsafe-inline'",
+    #     "script-src": "'self'",
+    # }
+    # CSP_HEADER=csp_header,  # Content Security Policy to prevent XSS
+    #                         # HTTP Strict Transport Security to force client to use HTTPS
+    # SESSION_COOKIE_SECURE=True,
+    # SESSION_COOKIE_HTTPONLY=True,
+    # SESSION_COOKIE_SAMESITE='Lax',
+    # PREFERRED_URL_SCHEME='https',
+    
+    # X_FRAME_OPTIONS='DENY',  # X-Frame-Options to prevent Clickjacking
+

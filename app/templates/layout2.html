@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en" data-layout="vertical" data-sidebar="light" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-bs-theme="light" data-layout-width="fluid" data-layout-position="fixed" data-layout-style="default" data-topbar="light" data-sidebar-visibility="show">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="Premium Multipurpose Admin & Dashboard Template" name="description">
+        <meta content="Themesbrand" name="author">
+        <meta name="keywords" content="Auto Trade, Algo Killer, Project Susan">
+        <title>{% block title %}AI for Trading | Project Susan{% endblock title %}</title>
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/favicon.ico') }}">
+        <!-- jsvectormap css -->
+        <link href="{{ url_for('static', filename='assets/libs/jsvectormap/css/jsvectormap.min.css') }}" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/line-awesome.min.css') }}">
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css"/>
+        <!--Swiper slider css-->
+        <link href="{{ url_for('static', filename='assets/libs/swiper/swiper-bundle.min.css') }}" rel="stylesheet" type="text/css" />
+        <!-- Layout config Js -->
+        <script src="{{ url_for('static', filename='assets/js/layout.js') }}"></script>
+        <!-- Bootstrap Css -->
+        <link href="{{ url_for('static', filename='assets/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
+        <!-- Icons Css -->
+        <link href="{{ url_for('static', filename='assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+        <!-- App Css-->
+        <link href="{{ url_for('static', filename='assets/css/app.min.css') }}" rel="stylesheet" type="text/css"/>
+        <!-- custom Css-->
+        <link href="{{ url_for('static', filename='assets/css/custom.min.css') }}" rel="stylesheet" type="text/css"/>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        {% block extrascripts %} {% endblock extrascripts %}
+    </head>
+    <body>
+        <!-- Begin page -->
+        <div id="layout-wrapper">
+
+            <header id="page-topbar">
+                <div class="layout-width">
+                    <div class="navbar-header">
+                        <div class="d-flex">
+                            <!-- LOGO -->
+                            <div class="navbar-brand-box horizontal-logo">
+                                <a href="{{ url_for('main.dashboard') }}" class="logo logo-dark">
+                                    <span class="logo-sm">
+                                        <img src="{{ url_for('static', filename='assets/images/logo-sm.png') }}" alt="" height="22" width="">
+                                    </span>
+                                    <span class="logo-lg">
+                                        <img src="{{ url_for('static', filename='assets/images/logo-dark.png') }}" alt="" height="17" width="">
+                                    </span>
+                                </a>
+
+                                <a href="{{ url_for('main.dashboard') }}" class="logo logo-light">
+                                    <span class="logo-sm">
+                                        <img src="{{ url_for('static', filename='assets/images/logo-sm.png') }}" alt="" height="22" width="">
+                                    </span>
+                                    <span class="logo-lg">
+                                        <img src="{{ url_for('static', filename='assets/images/logo-light.png') }}" alt="" height="17" width="">
+                                    </span>
+                                </a>
+                            </div>
+
+                            <button type="button" class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger" id="topnav-hamburger-icon">
+                                <span class="hamburger-icon">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </span>
+                            </button>
+                        </div>
+
+                        <div class="d-flex align-items-center">
+                            <div class="ms-1 header-item d-none d-sm-flex">
+                                <button type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle" data-toggle="fullscreen">
+                                    <i class="bx bx-fullscreen fs-22"></i>
+                                </button>
+                            </div>
+
+                            <div class="ms-1 header-item d-none d-sm-flex">
+                                <button type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle light-dark-mode">
+                                    <i class="bx bx-moon fs-22"></i>
+                                </button>
+                            </div>
+
+                            <div class="ms-1 header-item">
+                                    <a href="{{ url_for('main.notifications') }}" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle {{ 'text-danger bg-dark-subtle' if request.endpoint == 'main.notifications' }}">
+                                        <i class="bx bx-bell fs-22"></i>
+                                        {% if notification_count %}
+                                        <span class="position-absolute topbar-badge fs-10 translate-middle badge rounded-pill bg-danger">{{ notification_count }}<span class="visually-hidden">unread messages</span></span>
+                                        {% endif %}
+                                    </a>
+                            </div>
+
+                            <div class="dropdown ms-sm-3 header-item topbar-user">
+                                <button type="button" class="btn" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="d-flex align-items-center">
+                                        <img class="rounded-circle header-profile-user" height="" width="" src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" alt="Header Avatar">
+                                        <span class="text-start ms-xl-2">
+                                            <span class="d-none d-xl-inline-block ms-1 fw-semibold user-name-text">{{ current_user.username }}</span>
+                                            <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">{{ current_user.role }}</span>
+                                        </span>
+                                    </span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <!-- item-->
+                                    <h6 class="dropdown-header">Welcome {{ current_user.username }} </h6>
+                                    <a class="dropdown-item" href="{{ url_for('profile_bp.profile', user_id=current_user.id) }}"><i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Profile</span></a>
+                                    <a class="dropdown-item" href=""><i class="mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Messages</span></a>
+                                    <a class="dropdown-item" href=""><i class="mdi mdi-calendar-check-outline text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Taskboard</span></a>
+                                    <a class="dropdown-item" href=""><i class="mdi mdi-lifebuoy text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Help</span></a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href=""><i class="mdi mdi-wallet text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Balance : <b>$5971.67</b></span></a>
+                                    <a class="dropdown-item" href="{{ url_for('main.settings') }}"><span class="badge bg-success-subtle text-success mt-1 float-end">New</span><i class="mdi mdi-cog-outline text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Settings</span></a>
+                                    <a class="dropdown-item" href=""><i class="mdi mdi-lock text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Lock screen</span></a>
+                                    <a class="dropdown-item" href="{{ url_for('security.logout') }}"><i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span class="align-middle" data-key="t-logout">Logout</span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- ========== App Menu ========== -->
+            <div class="app-menu navbar-menu">
+                <!-- LOGO -->
+                <div class="navbar-brand-box">
+                    <!-- Dark Logo-->
+                    <a href="{{ url_for('main.dashboard') }}" class="logo logo-dark">
+                        <span class="logo-sm">
+                            <img src="{{ url_for('static', filename='assets/images/logo-sm.png') }}" alt="" height="22" width="">
+                        </span>
+                        <span class="logo-lg">
+                            <img src="{{ url_for('static', filename='assets/images/logo-dark.png') }}" alt="" height="17" width="">
+                        </span>
+                    </a>
+                    <!-- Light Logo-->
+                    <a href="{{ url_for('main.dashboard') }}" class="logo logo-light">
+                        <span class="logo-sm">
+                            <img src="{{ url_for('static', filename='assets/images/logo-sm.png') }}" alt="" height="22" width="">
+                        </span>
+                        <span class="logo-lg">
+                            <img src="{{ url_for('static', filename='assets/images/logo-light.png') }}" alt="" height="17" width="">
+                        </span>
+                    </a>
+                    <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover" id="vertical-hover">
+                        <i class="ri-record-circle-line"></i>
+                    </button>
+                </div>
+
+                <div id="scrollbar">
+                    <div class="container-fluid">
+
+                        <div id="two-column-menu">
+                        </div>
+                        <ul class="navbar-nav" id="navbar-nav">
+                            <li class="menu-title"><span data-key="t-menu">Menu</span></li>
+                            <li class="nav-item">
+                                <a class="{{ 'nav-link menu-link active' if request.endpoint == 'main.dashboard' else 'nav-link menu-link' }}" href="{{ url_for('main.dashboard') }}"  role="button">
+                                    <i class="ri-dashboard-2-line"></i> <span data-key="t-dashboards">Dashboards</span>
+                                </a>
+                            </li> <!-- end Dashboard Menu -->
+                            <li class="nav-item">
+                                <a class="{{ 'nav-link menu-link active' if request.endpoint == 'main.purchase_fuel' else 'nav-link menu-link' }}" href="{{ url_for('main.purchase_fuel') }}"  role="button">
+                                    <i class="las la-gas-pump"></i> <span data-key="t-apps">Refuel my Bot</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link menu-link" href="{{ url_for('main.trade') }}" role="button">
+                                    <i class="ri-bit-coin-line"></i> <span>Trade</span> <span class="badge badge-pill bg-danger" data-key="t-hot">Hot</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link menu-link" href="{{ url_for('main.history') }}" role="button">
+                                    <i class=" ri-chat-history-line"></i> <span>Trade History</span> <span class="badge badge-pill bg-success" data-key="t-hot">New</span>
+                                </a>
+                            </li> <!-- end Dashboard Menu -->
+                            <li class="nav-item">
+                                <a class="nav-link menu-link" href="{{ url_for('custom_webhook_bp.generate_webhook') }}" role="button">
+                                    <i class=" ri-chat-history-line"></i> <span>Generate Webhook</span> <span class="badge badge-pill bg-success" data-key="t-hot">New</span>
+                                </a>
+                            </li> <!-- end Dashboard Menu -->
+
+                            <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Configs</span></li>
+
+                            <li class="nav-item">
+                                <a class="{{ 'nav-link menu-link active' if request.endpoint == 'main.api_credentials' else 'nav-link menu-link' }}" href="{{ url_for('main.api_credentials') }}" role="button">
+                                    <i class="las la-sync-alt"></i> <span>Exchange Connector</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="{{ 'nav-link menu-link active' if request.endpoint == 'main.settings' else 'nav-link menu-link' }}" href="{{ url_for('main.settings') }}" role="button"  aria-controls="sidebarPages">
+                                    <i class="ri-settings-2-line"></i> <span> Settings</span>
+                                </a>
+                            </li>
+                        {% if current_user.has_role('admin') %}
+                            <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Admin Menu</span></li>
+                            <li class="nav-item">
+                                <a class="{{ 'nav-link menu-link active' if request.endpoint == 'main.admin_bot_fuel_requests' else 'nav-link menu-link' }}" href="{{ url_for('main.admin_bot_fuel_requests') }}" role="button">
+                                    <i class="las la-sync-alt"></i> <span>Fuel Requests</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="{{ 'nav-link menu-link active' if request.endpoint == 'premium_bp.premium_requests' else 'nav-link menu-link' }}" href="{{ url_for('premium_bp.premium_requests') }}" role="button">
+                                    <i class="las la-sync-alt"></i> <span>Premium Requests</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="{{ 'nav-link menu-link active' if request.endpoint == 'main.settings' else 'nav-link menu-link' }}" href="{{ url_for('main.settings') }}" role="button"  aria-controls="sidebarPages">
+                                    <i class="ri-settings-2-line"></i> <span> Running Data</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        </ul>
+                    </div>
+                    <!-- Sidebar -->
+                </div>
+
+                <div class="sidebar-background"></div>
+            </div>
+            <!-- Left Sidebar End -->
+            <!-- Vertical Overlay-->
+            <div class="vertical-overlay"></div>
+
+            <!-- ============================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+                    {%- with messages = get_flashed_messages(with_categories=true) -%}
+                        {% if messages %}
+                        <div style="z-index: 11">
+                            {% for category, message in messages %}
+                            <div id="toast-container" class="toast toast-border-success overflow-hidden mt-3" role="alert" aria-live="assertive" aria-atomic="true">
+                                <div class="toast-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0 me-2">
+                                            <i class="ri-checkbox-circle-fill align-middle"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0">{{ message }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    {%- endwith %}
+                <div class="page-content">
+                    <div class="container-fluid">
+                        {% block content %}{% endblock content %}
+                    </div>
+                    <!-- container-fluid -->
+                </div>
+                <!-- End Page-content -->
+                {% block footer %}
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <script>document.write(new Date().getFullYear())</script> © Project Susan.
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-sm-end d-none d-sm-block">
+                                    Design & Develop by @AdvancedEMA
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+
+                {% endblock footer %}
+            </div>
+            <!-- end main content-->
+
+        </div>
+        <!-- END layout-wrapper -->
+
+        <!--start back-to-top-->
+        <button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
+            <i class="ri-arrow-up-line"></i>
+        </button>
+        <!--end back-to-top-->
+        <!-- JAVASCRIPT -->
+        <script src="{{ url_for('static', filename='assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='assets/libs/simplebar/simplebar.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='assets/libs/node-waves/waves.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='assets/libs/feather-icons/feather.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='assets/js/pages/plugins/lord-icon-2.1.0.js') }}"></script>
+        <script src="{{ url_for('static', filename='assets/js/plugins.js') }}"></script>
+        
+        <!-- Chart JS -->
+        <script src="{{ url_for('static', filename='assets/libs/chart.js/chart.umd.js') }}"></script>
+
+        <script src="{{ url_for('static', filename='assets/js/pages/notifications.init.js') }}"></script>
+
+        <!-- chartjs init -->
+        <script src="{{ url_for('static', filename='assets/js/pages/chartjs.init.js') }}"></script>
+        <!-- App js -->
+        <script src="{{ url_for('static', filename='assets/js/app.js') }}"></script>
+        <script src="{{ url_for('static', filename='assets/js/pages/modal.init.js') }}"></script>
+            <script>
+            $(document).ready(function() {
+                // Fetch notifications on page load
+                $.getJSON('/notifications', function(data) {
+                    const notifications = data.notifications;
+                    let notificationsHtml = '';
+                    notifications.forEach(notification => {
+                        notificationsHtml += `
+                            <li>
+                                <a href="#" class="dropdown-item">
+                                    <p>${notification.message}</p>
+                                    <small>${notification.created_at}</small>
+                                </a>
+                            </li>
+                        `;
+                    });
+
+                    $('#notificationsDropdown').html(notificationsHtml);
+                });
+            });
+            </script>
+        {% block extrajs %} {% endblock extrajs %}
+    </body>
+</html>

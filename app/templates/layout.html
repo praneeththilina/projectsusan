@@ -8,6 +8,7 @@
     <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/datatables.min.css') }}" rel="stylesheet">
     <script src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icofont.min.css') }}">
     <style>
         .dropdown-content {
             display: none;
@@ -67,89 +68,139 @@
             padding: 12px 16px;
             border-bottom: 1px solid #ddd;
         }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .fade-in-left {
+            animation: fadeInLeft 1s ease-in-out;
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
     <title>Trading App</title>
 </head>
 <body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white fade-in">
-  <div id="app" class="flex">
+  <div id="app" class="flex flex-col min-h-screen">
       <!-- Top Navigation Bar -->
-
-<nav class="navbar bg-white dark:bg-gray-800 p-4 shadow-lg fixed w-full flex items-center justify-between z-50">
-    <div class="flex items-center">
-        <button id="mobile-menu-button" class="menu-btn text-gray-800 dark:text-white mr-4">☰</button>
-        <span class="text-lg font-semibold text-gray-800 dark:text-white">Trading App</span>
-    </div>
-    <div class="menu flex items-center space-x-4">
-        <div id="fuelContainer" class="flex items-center bg-gray-300 dark:bg-gray-700 rounded-lg p-2 shadow-lg">
-            <img src="{{ url_for('static', filename='img/fuel.svg') }}" alt="fuel" class="w-6 h-6 animate-fuel">
-            <p id="fuelBalance" class="text-sm text-gray-900 dark:text-white ml-2">Loading...</p>
+    <nav class="navbar bg-white dark:bg-gray-800 p-4 shadow-lg fixed w-full flex items-center justify-between z-50">
+        <div class="flex items-center">
+            <button id="mobile-menu-button" class="menu-btn text-gray-800 dark:text-white mr-4">☰</button>
+            <span class="text-lg font-semibold text-gray-800 dark:text-white">Trading App</span>
         </div>
-        <div class="flex items-center bg-gray-300 dark:bg-gray-700 rounded-lg p-2 shadow-lg">
-            <div class="relative">
-            <a href="{{ url_for('main.notifications') }}">
-                {% if notification_count %}
-                    <img src="{{ url_for('static', filename='img/notification.png') }}" alt="Notification" class="h-6 w-6 text-gray-500 dark:text-white">
-                    <span class="bg-red-500 text-white rounded-full px-1 py-0.5 text-xs absolute top-0 right-0">{{ notification_count }}</span>
-                {% else %}
-                    <img src="{{ url_for('static', filename='img/bell.png') }}" alt="Bell" class="h-6 w-6 text-gray-500 dark:text-white">
-                {% endif %}
-                </a>
+        <div class="menu flex items-center space-x-4">
+            <div id="fuelContainer" class="flex items-center bg-gray-300 dark:bg-gray-700 rounded-lg p-2 shadow-lg">
+                <img src="{{ url_for('static', filename='img/fuel.svg') }}" alt="fuel" class="w-6 h-6 animate-fuel">
+                <p id="fuelBalance" class="text-sm text-gray-900 dark:text-white ml-2">Loading...</p>
             </div>
-        </div>
-
-      <!-- Dark Mode Toggle Button -->
-      <div class="flex justify-center">
-          <button id="theme-toggle" class="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white py-2 px-4 rounded-lg transition duration-200 shadow-lg">
-              Toggle Dark Mode
-          </button>
-     </div>
-
-        <div class="dropdown relative">
-            <img src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" alt="Current Avatar" class="w-10 h-10 bg-gray-300 rounded-full cursor-pointer">
-            <div class="dropdown-content right-0 bg-white dark:bg-gray-700 border shadow-md">
-                <a href="{{ url_for('main.settings') }}" class="flex items-center py-2 px-4 text-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
-                    Settings
-                </a>
-                <a href="{{ url_for('security.logout') }}" class="flex items-center py-2 px-4 text-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
-                    Logout
-                </a>
-            </div>
-        </div>
-    </div>
-</nav>
-    <!-- Sidebar -->
-  <aside class="sidebar mt-12 bg-white dark:bg-gray-800 p-4 flex flex-col justify-between rounded-lg fade-in-left z-10"> <!-- Add z-10 -->
-       <div>
-          <!-- User Profile -->
-          {% if current_user.is_authenticated %}
-            <nav class="mt-4">
-                <a href="{{ url_for('main.index') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.home' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white">Home</a>
-                <a href="{{ url_for('main.dashboard') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.dashboard' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white">Dashboard</a>
-                <a href="{{ url_for('main.trade') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.trade' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white">Trade</a>
-                <a href="{{ url_for('main.api_credentials') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.api_credentials' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white">Connect Exchange</a>
-                <a href="{{ url_for('main.purchase_fuel') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.purchase_fuel' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white">Buy Bot Fuel</a>
-                {% if current_user.has_role('admin') %}
-                <a href="{{ url_for('main.bulk_trade') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.bulk_trade' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white">Bulk Trade</a>
-                    <a href="{{ url_for('main.admin_bot_fuel_requests') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">
-                        Bot Fuel Approval
-                        {% if pending_count %}
-                            <span class="bg-red-500 text-white rounded-full px-2 py-1 text-xs ml-2">{{ pending_count }}</span>
+            <div class="flex items-center bg-gray-300 dark:bg-gray-700 rounded-lg p-2 shadow-lg">
+                <div class="relative">
+                    <a href="{{ url_for('main.notifications') }}">
+                        {% if notification_count %}
+                            <img src="{{ url_for('static', filename='img/notification.png') }}" alt="Notification" class="h-6 w-6 text-gray-500 dark:text-white">
+                            <span class="bg-red-500 text-white rounded-full px-1 py-0.5 text-xs absolute top-0 right-0">{{ notification_count }}</span>
+                        {% else %}
+                            <img src="{{ url_for('static', filename='img/bell.png') }}" alt="Bell" class="h-6 w-6 text-gray-500 dark:text-white">
                         {% endif %}
                     </a>
-                {% endif %}
-            </nav>
-          {% endif %}
-      </div>
+                </div>
+            </div>
+
+            <!-- Dark Mode Toggle Button -->
+            <!-- <div class="flex justify-center">
+                <button id="theme-toggle" class="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white py-2 px-4 rounded-lg transition duration-200 shadow-lg">
+                    Toggle Dark Mode
+                </button>
+            </div> -->
+            <!-- Dark Mode Toggle Button -->
+            <button id="theme-toggle" class="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white py-2 px-4 rounded-lg transition duration-200 shadow-lg">
+                Toggle Dark Mode
+            </button>
 
 
-    </aside>
-    <!-- Main Content -->
-    <main class="content mt-12">
-      {% include "security/_messages.html" %}
-      <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 max-w-screen-xl  fade-in-up">
-        {% block content %}{% endblock content %}
-      </div>
-    </main>
+
+            <div class="dropdown relative">
+                <img src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" alt="Current Avatar" class="w-10 h-10 bg-gray-300 rounded-full cursor-pointer">
+                <div class="dropdown-content right-0 bg-white dark:bg-gray-700 border shadow-md">
+                    <a href="{{ url_for('main.settings') }}" class="flex items-center py-2 px-4 text-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
+                        <i class="icofont-duotone icofont-cogs icofont-1x text-current"></i> Settings
+                    </a>
+                    <a href="{{ url_for('security.logout') }}" class="flex items-center py-2 px-4 text-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
+                        <i class="icofont-duotone icofont-sign-out icofont-1x text-red-500"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="flex flex-1 mt-12">
+        <!-- Sidebar -->
+        <aside class="sidebar bg-white dark:bg-gray-800 p-4 flex flex-col justify-between fade-in-left w-64">
+           <div>
+              <!-- User Profile -->
+              {% if current_user.is_authenticated %}
+                <nav class="mt-4">
+                    <a href="{{ url_for('main.index') }}" class="flex items-center mt-1 mb-1 py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.index' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white transform hover:-translate-y-1">
+                        <i class="icofont-duotone icofont-home icofont-2x text-green-500"></i> <span class="ml-2">Home</span>
+                    </a>
+                    <a href="{{ url_for('main.dashboard') }}" class="flex items-center mt-1 mb-1 py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.dashboard' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white transform hover:-translate-y-1">
+                        <i class="icofont-duotone icofont-dashboard icofont-2x text-green-500"></i> <span class="ml-2">Dashboard</span>
+                    </a>
+                    <a href="{{ url_for('main.trade') }}" class="flex items-center mt-1 mb-1 py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.trade' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white transform hover:-translate-y-1">
+                        <i class="icofont-duotone icofont-wand icofont-2x text-green-500"></i> <span class="ml-2">Trade</span>
+                    </a>
+                    <a href="{{ url_for('main.api_credentials') }}" class="flex items-center mt-1 mb-1 py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.api_credentials' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white transform hover:-translate-y-1">
+                        <i class="icofont-duotone icofont-loop icofont-2x text-green-500 hover:text-white"></i> <span class="ml-2">Connect Exchange</span>
+                    </a>                 
+                    <a href="{{ url_for('main.purchase_fuel') }}" class="flex items-center mt-1 mb-1 py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.purchase_fuel' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white transform hover:-translate-y-1">
+                        <i class="icofont-duotone icofont-cart icofont-2x text-green-500"></i> <span class="ml-2">Bot Fuel Centre</span>
+                    </a>
+                    {% if current_user.has_role('admin') %}
+                    <a href="{{ url_for('main.bulk_trade') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 {{ 'bg-gray-800 text-white' if request.endpoint == 'main.bulk_trade' else 'text-gray-800 dark:text-gray-300' }} hover:bg-gray-700 hover:text-white">Bulk Trade</a>
+                        <a href="{{ url_for('main.admin_bot_fuel_requests') }}" class="block py-2.5 px-4 rounded-lg transition duration-200 hover:bg-gray-200 dark:hover:bg-gray-600">
+                            Bot Fuel Approval
+                            {% if pending_count %}
+                                <span class="bg-red-500 text-white rounded-full px-2 py-1 text-xs ml-2">{{ pending_count }}</span>
+                            {% endif %}
+                        </a>
+                    {% endif %}
+                </nav>
+              {% endif %}
+          </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="content flex-1 p-6">
+            <div class="security-messages">
+                {% include "security/_messages.html" %}
+            </div>
+            <div class="card bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 fade-in-up">
+                {% block content %}{% endblock content %}
+            </div>
+        </main>
+    </div>
   </div>
 
   <!-- Mobile Modal -->

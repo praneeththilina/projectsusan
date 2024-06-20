@@ -8,6 +8,7 @@ from flask_security.datastore import SQLAlchemySessionUserDatastore
 from flask_security.utils import hash_password
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_caching import Cache
 from flask_wtf import CSRFProtect
 from flask_mail import Mail
 from dotenv import load_dotenv
@@ -19,24 +20,27 @@ db = SQLAlchemy()
 migrate = Migrate()
 csrf = CSRFProtect()
 mail = Mail()
+cache = Cache(config={'CACHE_TYPE': 'simple'})
 load_dotenv()
 
 # Initialize Limiter
 limiter = Limiter(key_func=get_remote_address, 
-                  default_limits=["10 per second"],
-                  storage_uri="memory://"
-                  )
+                    default_limits=["100000 per day", "10000 per hour"],
+                    storage_uri="memory://"
+                )
+
+
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-
+    cache.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
     mail.init_app(app)
 
-    from .models import User, Role, Notification, BotFuelPackage, BotFuelTransaction
+    from .models import User, Role, Notification, BotFuelPackage, BotFuelTransaction, IDCounter, PremiumPackage
 
     user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role) # type: ignore
     security = Security(app, user_datastore)
@@ -48,6 +52,16 @@ def create_app():
     from .routes import register_blueprints
     register_blueprints(app)
     from .webhook import register_blueprint
+    register_blueprint(app)
+    from .custom_webhook import register_blueprint
+    register_blueprint(app)
+    from .custom_wh_alert import register_blueprint
+    register_blueprint(app)
+    from .premiums import register_blueprint
+    register_blueprint(app)
+    from .subscription import register_blueprint
+    register_blueprint(app)
+    from .profile import register_blueprint
     register_blueprint(app)
 
 
@@ -63,8 +77,6 @@ def create_app():
     @app.errorhandler(405)
     def method_not_allowed_error(error):
         return render_template('server_err/405.html'), 405
-
-
 
     @app.context_processor
     def inject_pending_count():
@@ -93,8 +105,22 @@ def create_app():
         return dict(notification_count=notification_count)
     
     @app.before_request
+    def before_request():
+        if current_user.is_authenticated:
+            current_user.check_and_apply_pending_premium()
+    
+    # Remove X-Powered-By header to hide server software information
+    @app.after_request
+    def remove_x_powered_by(response):
+        response.headers.pop('X-Powered-By', None)
+        return response
+
+
+
+    @app.before_request
     def create_default_data():
         initialize_default_data(user_datastore)
+
 
     def initialize_default_data(user_datastore):
         with app.app_context():
@@ -112,7 +138,21 @@ def create_app():
                     BotFuelPackage(name='Medium Pack', amount=300, cost_usdt=30), # type: ignore
                     BotFuelPackage(name='Large Pack', amount=1000, cost_usdt=100) # type: ignore
                 ]
-                db.session.bulk_save_objects(packages)            
+                db.session.bulk_save_objects(packages)   
+
+            if PremiumPackage.query.count() == 0:
+                sample_packages = [
+                    PremiumPackage(name="Silver Package", duration_days=30, price=100.0), # type: ignore
+                    PremiumPackage(name="Gold Package", duration_days=60, price=175.0), # type: ignore
+                    PremiumPackage(name="Platinum Package", duration_days=90, price=250.0), # type: ignore
+                ]
+                db.session.bulk_save_objects(sample_packages)
+
+                # Initialize the ID counter if it doesn't exist
+            if IDCounter.query.count() == 0:
+                db.session.add(IDCounter(counter=0))
+                db.session.commit()
+         
             
             db.session.commit()
 
@@ -126,6 +166,14 @@ def create_app():
                 db.session.add(admin_user)
             
             db.session.commit()
+    
+            # Assign role 'user' to users who do not have any roles yet
+            users_without_role = User.query.filter(~User.roles.any()).all()
+            user_role = Role.query.filter_by(name='user').first()
+            if user_role:
+                for user in users_without_role:
+                    user.roles.append(user_role)
+                db.session.commit()
 
                     
     return app

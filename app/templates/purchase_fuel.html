@@ -1,39 +1,61 @@
-{% extends 'layout.html' %}
-
+{% extends "layout2.html" %}
+{% block title %}Refuel | Project Susan{% endblock title %}
 {% block content %}
-<h2 class="text-2xl font-semibold mb-4">Purchase Fuel</h2>
-<form method="post" class="space-y-4">
-    {{ form.hidden_tag() }}
-    <div>
-        {{ form.package.label(class="block text-sm font-medium text-gray-700") }}
-        {{ form.package(class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:border-blue-500") }}
-    </div>
-    <div>
-        {{ form.payment_method.label(class="block text-sm font-medium text-gray-700") }}
-        {{ form.payment_method(class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:border-blue-500", id="payment_method") }}
-    </div>
-    <div id="pay_id_field" style="display: none;">
-        {{ form.pay_id.label(class="block text-sm font-medium text-gray-700") }}
-        {{ form.pay_id(class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:border-blue-500") }}
-    </div>
-    <div>
-        {{ form.submit(class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-150 ease-in-out flex items-center") }}
-    </div>
-</form>
+<div class="row">
+    <div class="col-sm-12 col-lg-6">
+        <div class="card ">
+            <div class="card-header">
+                <h3>Purchase Fuel</h3>
+            </div>
+            <div class="card-body">
+            {# form-control rounded-pill #}
 
-<script>
-    document.getElementById('payment_method').addEventListener('change', function() {
-        var paymentMethod = this.value;
-        var payIdField = document.getElementById('pay_id_field');
-        
-        if (paymentMethod === 'Binance Pay') {
-            payIdField.style.display = 'block';
-        } else {
-            payIdField.style.display = 'none';
-        }
-    });
+                <div class="form-container active">
+                {# <div class="col-lg-6">
+                    <div class="input-group">
+                        <span class="input-group-text">Button</span>
+                            <select class="form-select" id="inputGroupSelect03" aria-label="Example select with button addon">
+                                <option selected="">Choose...</option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+                    </div>
+                </div> #}
+                                
+                    <form method="post" autocomplete="off">
+                        {{ form.hidden_tag() }}
+                        <div class="input-group mb-3">
+                            <span class="input-group-text col-6">{{ form.package.label }}</span>
+                            {{ form.package(class="form-select col-6", placeholder="Select Package") }}
+                            <span class="input-group-text bg-success"><i class="las la-shopping-bag text-white fs-22"></i></span>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text col-6">{{ form.payment_method.label }}</span>
+                            {{ form.payment_method(class="form-select col-6", placeholder="Select Payment Method") }}
+                            <span class="input-group-text bg-info"><i class="lab la-amazon-pay text-white fs-22"></i></span>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text col-6">{{ form.pay_id.label }}</span>
+                            {{ form.pay_id(class="form-control col-6", placeholder="Payment reference") }}
+                        </div>
+                        <div>
+                            {{ form.submit(class="btn btn-danger w-100") }}
+                        </div>
+                    </form>
+                </div>
 
-    // Trigger change event on page load to set initial state
-    document.getElementById('payment_method').dispatchEvent(new Event('change'));
-</script>
-{% endblock content %}
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-lg-6">
+        <div class="card ">
+            <div class="card-header">
+                <h3>Fuel Purchased history</h3>
+            </div>
+            <div class="card-body">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content%}

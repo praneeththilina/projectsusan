@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
-from app.models import User
+from app.models import User, db, IDCounter
 from trading_bot import execute_trade
 import os
 from datetime import datetime
@@ -42,13 +42,22 @@ def trade_alert():
             User._fuel_balance > 10
         ).all()
 
+    with db.session.begin_nested():
+        counter = IDCounter.query.first()
+        if not counter:
+            counter = IDCounter(counter=0)
+            db.session.add(counter)
+            db.session.flush()  # Ensure the new counter is available
+        counter.counter += 1
+        trade_id = counter.counter
+        db.session.commit()
 
     for user in users:
         _api_key = user._api_key
         _api_secret = user._api_secret
         try:
             if _api_key and _api_secret:
-                execute_trade(pair, side, user)
+                execute_trade(pair, side, user, trade_id)
 
                 # # Notify user
                 # message = f"Trade executed: {side} {quantity} of {pair} at {price}"

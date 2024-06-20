@@ -1,416 +1,79 @@
-{% extends "layout.html" %}
+{% extends "layout2.html" %}
+{% block title %}Dashboard | Project Susan{% endblock title %}
 {% block content %}
-    <!-- Bootstrap CSS -->
-    {# <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> #}
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
-    <!-- jQuery -->
+        <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- DataTables JS -->
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
-    <style>
-        .widget-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-        .widget {
-            flex: 1 1 30%;
-            margin: 10px;
-            padding: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            border-radius: 10px;
-            background: #fff;
-        }
-        @media (max-width: 768px) {
-            .widget {
-                flex: 1 1 45%;
-            }
-        }
-        @media (max-width: 480px) {
-            .widget {
-                flex: 1 1 100%;
-            }
-        }
+    <script src="static/js/susan-charts.js"></script>
 
-#win-rate-widget {
-    background: linear-gradient(to bottom right, #1f4037, #99f2c8);
-    color: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+                        <!-- start page title -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                                <h4 class="mb-sm-0">Starter</h4>
 
-#win-rate-widget .bg-cover {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    opacity: 0.2;
-}
+                                <div class="page-title-right">
+                                    <ol class="breadcrumb m-0">
+                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Pages</a></li>
+                                        <li class="breadcrumb-item active">Starter</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end page title -->
+                    <div class="row">
+                        <div class="col-xl-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title mb-0">Bar Chart</h4>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="myBarChart" class="chartjs-chart" data-colors='["--vz-primary-rgb, 0.8", "--vz-primary-rgb, 0.9"]'></canvas>
+                                </div>
+                            </div>
+                        </div> <!-- end col -->
+                        <div class="col-xl-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title mb-0">Bar Chart</h4>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="myLineChart" class="chartjs-chart" data-colors='["--vz-primary-rgb, 0.8", "--vz-primary-rgb, 0.9"]'></canvas>
 
-#win-rate-widget .relative {
-    position: relative;
-    z-index: 10;
-}
+                                </div>
+                            </div>
+                        </div> <!-- end col -->
 
-#win-rate-widget h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
+                        <div class="col-lg-6 col-sm-12">
+                            <div class="card bg-primary">
+                                <div class="card-body p-0">
+                                    <div class="alert alert-danger rounded-top alert-solid alert-label-icon border-0 rounded-0 m-0 d-flex align-items-center" role="alert">
+                                        <i class="ri-error-warning-line label-icon"></i>
+                                        <div class="flex-grow-1 text-truncate">
+                                            Your Premium will expire <b>{{ current_user._fuel_balance }}</b> gas points.
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            <a href="{{ url_for('premium_bp.get_packages') }}" class="text-reset text-decoration-underline"><b>Upgrade</b></a>
+                                        </div>
+                                    </div>
 
-#win-rate-widget .text-4xl {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #48bb78; /* Tailwind CSS green-500 */
-}
-
-#win-rate-widget p {
-    margin-top: 1rem;
-    font-size: 1rem;
-}
-
-
-
-    </style>
-
-    <h1>Trade Dashboard</h1>
-
-    <div class="widget-container">
-        <div id="win-rate-widget" class="widget p-6 rounded-lg shadow-lg text-white relative overflow-hidden">
-            <!-- Background Image -->
-            <div class="absolute inset-0 bg-cover bg-center opacity-20" style="background-image:  url({{ url_for('static', filename='img/growth-bg.jpg') }});"></div>
-
-            <!-- Win Rate Widget Content -->
-            <div class="relative z-10">
-                <h2 class="text-2xl font-semibold mb-4">Win Rate</h2>
-                <p class="mt-4">Current winning rate is <span id="winRate" class="font-bold">0%</span>. We can do better in the future. Stay with us!</p>
-            </div>
-        </div>
-
-
-
-        <div class="widget">
-            <canvas id="tradeVolumeChart"></canvas>
-        </div>
-        <div class="widget">
-            <canvas id="realizedPnlChart"></canvas>
-        </div>
-        <div class="widget p-6 rounded-lg shadow-lg text-white relative overflow-hidden">
-            <canvas id="sideDistributionChart"></canvas>
-        </div>
-
-
-    </div>
-
-    <h2>Trade Data</h2>
-    <div class="table-responsive dark:bg-gray-900 ">
-        <table id="tradeTable" class="display responsive nowrap" style="width:100%">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Timestamp</th>
-                    <th>Pair</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>PnL</th>
-                    <th>Side</th>
-                    <th>Price</th>
-                    <th>Amount</th>
-                    <th>Order ID</th>
-                </tr>
-            </thead>
-            <tbody class="dark:bg-gray-900 text-gray-700 dark:text-gray-700">
-            </tbody>
-        </table>
-    </div>
-
-
-
-<script>
-    function format(d) {
-        return `<table cellpadding="5" cellspacing="0" border="0"">
-            <tr>
-                <td>Timestamp:</td>
-                <td>${d.timestamp}</td>
-            </tr>
-            <tr>
-                <td>Pair:</td>
-                <td>${d.pair}</td>
-            </tr>
-            <tr>
-                <td>Comment:</td>
-                <td>${d.comment}</td>
-            </tr>
-            <tr>
-                <td>Status:</td>
-                <td>${d.status}</td>
-            </tr>
-            <tr>
-                <td>PnL:</td>
-                <td>${d.realized_pnl}</td>
-            </tr>
-            <tr>
-                <td>Side:</td>
-                <td>${d.side}</td>
-            </tr>
-            <tr>
-                <td>Price:</td>
-                <td>${d.price}</td>
-            </tr>
-            <tr>
-                <td>Amount:</td>
-                <td>${d.amount}</td>
-            </tr>
-            <tr>
-                <td>Order ID:</td>
-                <td>${d.orderid}</td>
-            </tr>
-        </table>`;
-    }
-
-$(document).ready(function() {
-    fetch('/data/trades')
-        .then(response => response.json())
-        .then(data => {
-           // console.log("Fetched data:", data);  // Log fetched data
-
-            // Filter out trades with status "expired"
-            const filteredData = data.trades.filter(trade => trade.status !== 'expired');
-            const additionalData = data.additional_data
-            // Extract data for various charts and tables
-            const timestamps = filteredData.map(trade => moment(trade.timestamp));
-            const realizedPnl = filteredData.map(trade => trade.realized_pnl);
-            const tradeVolume = filteredData.map(trade => trade.amount);
-            const sides = filteredData.map(trade => trade.side);
-
-            // Display additional data (e.g., win rate) in the UI
-            $('#winRate').text(`${additionalData['win-rate']}%`);
-
-            // Initialize DataTable with filtered data
-            const table = $('#tradeTable').DataTable({
-                data: filteredData,
-                columns: [
-                    {
-                        className: 'dtr-control',
-                        orderable: false,
-                        data: null,
-                        defaultContent: '',
-                    },
-                    {
-                        data: 'timestamp',
-                        render: function(data, type, row) {
-                            return moment(data).format('YY MM D, HH:mm');
-                        }
-                    },
-                    { data: 'pair' },
-                    {
-                        data: 'comment',
-                        render: function(data, type, row) {
-                            if (data === 'STOP_MARKET' || data === 'STOP_MARKE') {
-                                return 'SL';
-                            } else if (data === 'TAKE_PROFIT' || data === 'TAKE_PROFI') {
-                                return 'TP';
-                            } else if (data === 'MARKET') {
-                                return 'ENTRY';
-                            }
-                            return data;
-                        }
-                    },
-                    {
-                        data: 'status',
-                        render: function(data, type, row) {
-                            if (data === 'closed' && row.realized_pnl > 0) {
-                                return `<span class="badge bg-green-500 text-white py-1 px-2 rounded-full flex justify-center items-center">${data}</span>`;
-                            } else if (data === 'closed' && row.realized_pnl < 0) {
-                                return `<span class="badge bg-red-500 text-white py-1 px-2 rounded-full flex justify-center items-center">${data}</span>`;
-                            } else {
-                                return data;
-                            }
-                        }
-                    },
-                    {
-                        data: 'realized_pnl',
-                        render: function(data, type, row) {
-                            return data !== 0 ? data : '-';
-                        }
-                    },
-                    {
-                        data: 'side',
-                        render: function(data, type, row) {
-                            if (row.comment === 'MARKET') {
-                                return data === 'buy' ? 'BUY' : data === 'sell' ? 'SELL' : '';
-                            }
-                            return '';
-                        }
-                    },
-                    { data: 'price' },
-                    { data: 'amount' },
-                    { data: 'orderid' }
-                ],
-                order: [[1, 'desc']],
-                responsive: true
-            });
-
-            // Toggle row details in DataTable
-            $('#tradeTable tbody').on('click', 'td.dt-control', function () {
-                var tr = $(this).closest('tr');
-                var row = table.row(tr);
-
-                if (row.child.isShown()) {
-                    row.child.hide();
-                    tr.removeClass('shown');
-                } else {
-                    table.rows('.shown').every(function () {
-                        this.child.hide();
-                        $(this.node()).removeClass('shown');
-                    });
-                    row.child(format(row.data())).show();
-                    tr.addClass('shown');
-                }
-            });
-
-            // Filter data for the last month and trades with non-zero realized PnL
-            const lastMonthData = filteredData.filter(trade => moment(trade.timestamp).isAfter(moment().subtract(1, 'months')) && trade.realized_pnl !== 0);
-
-            // Calculate cumulative PnL for non-zero values
-            const cumulativePnL = [];
-            let sum = 0;
-            lastMonthData.forEach(trade => {
-                sum += trade.realized_pnl;
-                cumulativePnL.push(sum);
-            });
-
-            // Create line chart for cumulative realized PnL
-            const realizedPnlChartCtx = document.getElementById('realizedPnlChart').getContext('2d');
-            const realizedPnlChart = new Chart(realizedPnlChartCtx, {
-                type: 'line',
-                data: {
-                    labels: lastMonthData.map(trade => moment(trade.timestamp).format('YYYY-MM-DD  HH:mm:ss')),
-                    datasets: [{
-                        label: 'Cumulative Realized PnL',
-                        data: cumulativePnL,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'day'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            // Group trades by date and sum up the trade volumes for each day
-            const tradeVolumeData = {};
-            lastMonthData.forEach(trade => {
-                if (trade.status === 'closed') { // Filter trades by status
-                    const date = moment(trade.timestamp).format('YYYY-MM-DD');
-                    if (!tradeVolumeData[date]) {
-                        tradeVolumeData[date] = 0;
-                    }
-                    tradeVolumeData[date] += trade.amount * trade.price;
-                }
-            });
-
-            // Extract labels and data for the trade volume bar chart
-            const tradeVolumeLabels = Object.keys(tradeVolumeData);
-            const tradeVolumeValues = Object.values(tradeVolumeData);
-
-            // Create bar chart for trade volume
-            const tradeVolumeChartCtx = document.getElementById('tradeVolumeChart').getContext('2d');
-            const tradeVolumeChart = new Chart(tradeVolumeChartCtx, {
-                type: 'bar',
-                data: {
-                    labels: tradeVolumeLabels,
-                    datasets: [{
-                        label: 'Trade Volume (USDT)',
-                        data: tradeVolumeValues,
-                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'day'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            // Create pie chart for trade side distribution
-            const sideDistributionCtx = document.getElementById('sideDistributionChart').getContext('2d');
-            const sideDistributionChart = new Chart(sideDistributionCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['Buy', 'Sell'],
-                    datasets: [{
-                        label: 'Trade Sides',
-                        data: [
-                            sides.filter(side => side === 'buy').length,
-                            sides.filter(side => side === 'sell').length
-                        ],
-                        backgroundColor: [
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 99, 132, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 99, 132, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    aspectRatio: 1, // Aspect ratio to maintain a square shape
-                    responsive: true,
-                    maintainAspectRatio: false // Override responsive settings to use aspect ratio
-                }
-            });
-        })
-        .catch(error => console.error('Error fetching data:', error));
-
-    // Dropdown scroll hide using table responsive
-    $('.table-responsive').on('show.bs.dropdown', function () {
-        $(this).css("overflow", "inherit");
-    });
-
-    $('.table-responsive').on('hide.bs.dropdown', function () {
-        $(this).css("overflow", "auto");
-    });
-});
-</script>
-
+                                    <div class="row align-items-end">
+                                        <div class="col-sm-8">
+                                            <div class="p-3">
+                                                <p class="fs-16 lh-base text-white">Topup your bot fuel plan <span class="fw-bold">Low fuel</span>, to ‘Fuel Tank’ <i class="mdi mdi-arrow-right"></i></p>
+                                                <div class="mt-3">
+                                                    <a href="{{ url_for('main.purchase_fuel') }}" class="btn btn-info">Topup fuel!</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <div class="px-3">
+                                                <img src="static/assets/images/user-illustarator-1.png" class="img-fluid" alt="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> <!-- end card-body-->
+                            </div>
+                        </div>
+                    </div>
 {% endblock content %}

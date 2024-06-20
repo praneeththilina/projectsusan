@@ -11,6 +11,10 @@ def get_ccxt_instance(api_key, api_secret):
         'apiKey': api_key,
         'secret': api_secret,
         'enableRateLimit': True,
+        # 'proxies': {
+        #         'http': 'proxy.server:3128',
+        #         'https': 'proxy.server:3128',
+        # },
         'options': {
             'defaultType': 'future',
             'adjustForTimeDifference': True,
@@ -86,16 +90,17 @@ def save_trade(user_id, order_data, message, orderid):
         db.session.commit()
     
 
-def save_trade_tpsl(user_id, extracted_order, message, orderid):
+def save_trade_tpsl(user_id, extracted_order, message, orderid, trade_id):
         trade = Trade(
             # timestamp=datetime.fromisoformat(order_data['datetime']), # type: ignore
+            trade_id=trade_id,
             timestamp=datetime.now(), 
             pair=extracted_order['symbol'],
             comment = message,
             orderid = orderid,
             status = extracted_order['status'],
             side =extracted_order['side'],
-            price = extracted_order['stopPrice'],
+            price =  extracted_order['avgPrice'] if message=='MARKET' else extracted_order['stopPrice'],
             amount=extracted_order['quantity'],
             user_id=user_id)  # type: ignore
         db.session.add(trade)

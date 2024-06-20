@@ -1,106 +1,309 @@
-<!-- templates/landing.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Susan - Your Ultimate Trading Companion</title>
-    {# <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"> #}
     <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
-        /* Add animations for page and card loading */
+        /* Enhanced animations for a professional look */
         .fade-in {
-            animation: fadeIn 1s ease-in-out;
+            animation: fadeIn 1.5s ease-in-out;
         }
         .fade-in-up {
-            animation: fadeInUp 1s ease-in-out;
+            animation: fadeInUp 1.5s ease-in-out;
         }
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom styles for a modern look */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #2b2b2b, #1c1c1c);
+            color: #f7fafc;
+            overflow-x: hidden;
+        }
+        nav {
+            background-color: #1a202c;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10;
+            transition: transform 0.3s ease;
+        }
+        nav a {
+            color: #f7fafc;
+            text-decoration: none;
+            padding: 15px 20px;
+            display: block;
+        }
+        nav a:hover {
+            background-color: #2d3748;
+            color: #63b3ed;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 250px;
+            background-color: #1a202c;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .sidebar-logo .fa-robot {
+            font-size: 2rem;
+            margin-right: 10px;
+            color: #63b3ed;
+        }
+        .sidebar-logo h2 {
+            color: #f7fafc;
+            font-size: 1.5rem;
+        }
+        .sidebar a {
+            color: #f7fafc;
+            text-decoration: none;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            transition: color 0.3s, background-color 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #2d3748;
+            color: #63b3ed;
+        }
+        .sidebar a i {
+            margin-right: 10px;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+        .hero-section {
+            position: relative;
+            background: linear-gradient(135deg, #2b2b2b, #1c1c1c);
+            color: white;
+            padding: 100px 0;
+        }
+        .hero-section .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+        .hero-section .content {
+            position: relative;
+            z-index: 2;
+        }
+        .cta-button {
+            background-color: #63b3ed;
+            color: white;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+        .cta-button:hover {
+            background-color: #3182ce;
+        }
+        .feature-card {
+            background-color: #1a202c;
+            color: white;
+            background-size: cover;
+            background-position: center;
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        .footer {
+            background-color: #1a202c;
+            color: #a0aec0;
+        }
+        /* New background animation */
+        @keyframes backgroundAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        body {
+            background: linear-gradient(135deg, #2b2b2b, #1c1c1c, #2b2b2b);
+            background-size: 200% 200%;
+            animation: backgroundAnimation 10s ease infinite;
+        }
+
+        /* Mobile View Styles */
+        @media screen and (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+                transform: translateX(-200px);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 20px;
+            }
+            .mobile-nav-icon {
+                display: inline-block;
+                cursor: pointer;
+                color: #f7fafc;
+            }
+        }
+        @media screen and (min-width: 769px) {
+            .mobile-nav-icon {
+                display: none;
+            }
+            .sidebar {
+                transform: translateX(0);
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-900 fade-in">
+<body class="bg-gray-900 text-gray-200 fade-in">
 
 <!-- Navigation Bar -->
-<nav class="bg-white shadow-lg">
+<nav class="shadow-lg">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-        <a href="/" class="text-2xl font-bold text-blue-600">Project Susan</a>
-        <div>
-            {% if current_user.is_authenticated %}
-                <span class="text-gray-700 mx-2">Hello, {{ current_user.name }}</span>
-                <a href="{{ url_for('main.dashboard') }}" class="text-blue-600 hover:underline mx-2">Dashboard</a>
-                <img src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" alt="Avatar" class="w-10 h-10 rounded-full inline-block mx-2">
-            {% else %}
-                <a href="{{ url_for('security.login') }}" class="text-blue-600 hover:underline mx-2">Login</a>
-                <a href="{{ url_for('security.register') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sign Up</a>
-            {% endif %}
-        </div>
+        <a href="/" class="text-2xl font-bold">Project Susan</a>
+        <button id="sidebarToggle" class="text-2xl mobile-nav-icon"><i class="fas fa-bars"></i></button>
     </div>
 </nav>
 
-<!-- Hero Section -->
-<section class="bg-blue-600 text-white py-20 fade-in-up">
-    <div class="container mx-auto px-4 text-center">
-        <h1 class="text-4xl font-bold mb-4">Welcome to Project Susan</h1>
-        <p class="text-xl mb-8">Your Ultimate Trading Companion</p>
-        <a href="{{ url_for('security.register') }}" class="bg-white text-blue-600 px-6 py-3 rounded-full text-lg font-semibold hover:bg-gray-200">Get Started Now</a>
+<!-- Sidebar Navigation -->
+<div class="sidebar shadow-lg" id="sidebar">
+    <div class="sidebar-logo">
+        <i class="fas fa-robot"></i>
+        <h2>Project Susan</h2>
     </div>
-</section>
+    <a href="/"><i class="fas fa-home"></i> Home</a>
+    <a href="#features"><i class="fas fa-list"></i> Features</a>
+    <a href="#cta"><i class="fas fa-sign-in-alt"></i> Get Started</a>
+    {% if current_user.is_authenticated %}
+        <div class="mt-auto">
+            <span class="mx-2">Hello, {{ current_user.name }}</span>
+            <a href="{{ url_for('main.dashboard') }}" class="hover:underline mx-2"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+            <img src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" alt="Avatar" class="w-10 h-10 rounded-full inline-block mx-2">
+        </div>
+    {% else %}
+        <div class="mt-auto">
+            <a href="{{ url_for('security.login') }}" class="hover:underline mx-2"><i class="fas fa-sign-in-alt"></i>Login</a>
+            <a href="{{ url_for('security.register') }}" class="cta-button px-4 py-2 rounded mt-4"><i class="fas fa-user-plus"></i>Sign Up</a>
+        </div>
+    {% endif %}
+</div>
 
-<!-- Features Section -->
-<section class="container mx-auto px-4 py-20">
-    <h2 class="text-3xl font-bold text-center mb-10">Key Features</h2>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-        <div class="bg-white p-6 rounded-lg shadow-lg fade-in-up" style="background-image: url('/static/img/feature/1.jpg'); background-size: cover; background-position: center;">
-            <h3 class="text-xl font-semibold mt-4 text-white">Real-Time Market Data</h3>
-            <p class="mt-2 text-white">Stay ahead of the market with live updates and real-time data.</p>
-        </div>
-        <div class="bg-white p-6 rounded-lg shadow-lg fade-in-up" style="background-image: url('/static/img/feature/2.jpg'); background-size: cover; background-position: center;">
-            <h3 class="text-xl font-semibold mt-4 text-white">Advanced Analytics & Reports</h3>
-            <p class="mt-2 text-white">Gain deep insights with our comprehensive analytics and detailed reports.</p>
-        </div>
-        <div class="bg-white p-6 rounded-lg shadow-lg fade-in-up" style="background-image: url('/static/img/feature/3.jpg'); background-size: cover; background-position: center;">
-            <h3 class="text-xl font-semibold mt-4 text-white">Instant Notifications</h3>
-            <p class="mt-2 text-white">Get alerts for market movements, trade executions, and important updates.</p>
-        </div>
-        <div class="bg-white p-6 rounded-lg shadow-lg fade-in-up" style="background-image: url('/static/img/feature/4.jpg'); background-size: cover; background-position: center;">
-            <h3 class="text-xl font-semibold mt-4 text-white">Top-Notch Security</h3>
-            <p class="mt-2 text-white">Your data is safe with us with state-of-the-art security measures.</p>
-        </div>
-        <div class="bg-white p-6 rounded-lg shadow-lg fade-in-up" style="background-image: url('/static/img/feature/5.jpg'); background-size: cover; background-position: center;">
-            <h3 class="text-xl font-semibold mt-4 text-white">Automated Trading</h3>
-            <p class="mt-2 text-white">Let our advanced trading bots execute trades on your behalf.</p>
-        </div>
-        <div class="bg-white p-6 rounded-lg shadow-lg fade-in-up" style="background-image: url('/static/img/feature/6.jpg'); background-size: cover; background-position: center;">
-            <h3 class="text-xl font-semibold mt-4 text-white">User-Friendly Interface</h3>
-            <p class="mt-2 text-white">Navigate effortlessly through features with our intuitive interface.</p>
-        </div>
-    </div>
-</section>
+<!-- Main Content -->
+<div class="content">
 
-<!-- Call to Action Section -->
-<section class="bg-gray-800 text-white py-20 fade-in-up">
-    <div class="container mx-auto px-4 text-center">
-        <h2 class="text-3xl font-bold mb-4">Ready to Transform Your Trading Experience?</h2>
-        <p class="text-xl mb-8">Join the Project Susan community today and start your journey towards smarter, more profitable trading.</p>
-        <a href="{{ url_for('security.register') }}" class="bg-blue-600 text-white px-6 py-3 rounded-full text-lg font-semibold hover:bg-blue-700">Sign Up Now</a>
-    </div>
-</section>
+    <!-- Hero Section -->
+    <section class="hero-section fade-in-up">
+        <div class="overlay"></div>
+        <div class="container mx-auto px-4 text-center content">
+            <h1 class="text-5xl font-bold mb-4">Welcome to Project Susan</h1>
+            <p class="text-2xl mb-8">Your Ultimate Trading Companion</p>
+            <a href="{{ url_for('security.register') }}" class="cta-button px-6 py-3 rounded-full text-lg font-semibold">Get Started Now</a>
+        </div>
+    </section>
 
-<!-- Footer -->
-<footer class="bg-white py-6 fade-in">
-    <div class="container mx-auto px-4 text-center">
-        <p class="text-gray-700">&copy; 2024 Project Susan. All rights reserved.</p>
-    </div>
-</footer>
+    <!-- Features Section -->
+    <section id="features" class="py-20 fade-in-up">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold mb-12">Key Features</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+                <div class="feature-card" style="background-image: url('/static/img/feature/robot1.jpg');">
+                    <i class="fas fa-chart-line text-4xl"></i>
+                    <h3 class="text-2xl font-semibold mt-4">Real-Time Market Data</h3>
+                    <p class="mt-2">Stay ahead of the market with live updates and real-time data.</p>
+                </div>
+                <div class="feature-card" style="background-image: url('/static/img/feature/robot2.jpg');">
+                    <i class="fas fa-chart-pie text-4xl"></i>
+                    <h3 class="text-2xl font-semibold mt-4">Advanced Analytics & Reports</h3>
+                    <p class="mt-2">Gain deep insights with our comprehensive analytics and detailed reports.</p>
+                </div>
+                <div class="feature-card" style="background-image: url('/static/img/feature/robot3.jpg');">
+                    <i class="fas fa-bell text-4xl"></i>
+                    <h3 class="text-2xl font-semibold mt-4">Instant Notifications</h3>
+                    <p class="mt-2">Get alerts for market movements, trade executions, and important updates.</p>
+                </div>
+                <div class="feature-card" style="background-image: url('/static/img/feature/robot4.jpg');">
+                    <i class="fas fa-shield-alt text-4xl"></i>
+                    <h3 class="text-2xl font-semibold mt-4">Top-Notch Security</h3>
+                    <p class="mt-2">Your data is safe with us with state-of-the-art security measures.</p>
+                </div>
+                <div class="feature-card" style="background-image: url('/static/img/feature/robot5.jpg');">
+                    <i class="fas fa-robot text-4xl"></i>
+                    <h3 class="text-2xl font-semibold mt-4">Automated Trading</h3>
+                    <p class="mt-2">Let our advanced trading bots execute trades on your behalf.</p>
+                </div>
+                <div class="feature-card" style="background-image: url('/static/img/feature/robot6.jpg');">
+                    <i class="fas fa-user-cog text-4xl"></i>
+                    <h3 class="text-2xl font-semibold mt-4">User-Friendly Interface</h3>
+                    <p class="mt-2">Navigate effortlessly through features with our intuitive interface.</p>
+                </div>
+                <div class="feature-card" style="background-image: url('/static/img/feature/robot7.jpg');">
+                    <i class="fas fa-dollar-sign text-4xl"></i>
+                    <h3 class="text-2xl font-semibold mt-4">Maximized Profitability</h3>
+                    <p class="mt-2">Optimize your trading strategies to maximize your profits.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
+    <!-- Call to Action Section -->
+    <section id="cta" class="bg-gray-800 text-white py-20 fade-in-up">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold mb-4">Ready to Transform Your Trading Experience?</h2>
+            <p class="text-2xl mb-8">Join the Project Susan community today and start your journey towards smarter, more profitable trading.</p>
+            <a href="{{ url_for('security.register') }}" class="bg-blue-600 px-6 py-3 rounded-full text-lg font-semibold hover:bg-blue-700">Sign Up Now</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer py-6 fade-in">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Project Susan. All rights reserved.</p>
+        </div>
+    </footer>
+
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+<script>
+    document.getElementById('sidebarToggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('active');
+    });
+</script>
 </body>
 </html>

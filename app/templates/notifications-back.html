@@ -1,0 +1,24 @@
+<!-- notifications.html -->
+{% extends "layout.html" %}
+{% block content %}
+<div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 w-full mx-auto">
+    <h2 class="text-2xl font-semibold mb-4">Notifications</h2>
+    <ul class="space-y-4">
+        {% for notification in notifications %}
+            <li class="p-4 rounded-lg {{ 'bg-slate-200 dark:bg-slate-600' if notification.read else 'bg-blue-200 dark:bg-blue-700' }}">
+                <div class="flex justify-between items-center">
+                    <span>{{ notification.message }}</span>
+                    {% if not notification.read %}
+                        <form method="post" action="{{ url_for('main.mark_as_read', notification_id=notification.id) }}">
+                            {{ form.hidden_tag() }}
+                            {{ form.notification_id(value=notification.id) }}
+                            {{ form.submit(class_="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:shadow-outline") }}
+                        </form>
+                    {% endif %}
+                </div>
+                <small class="text-gray-600 dark:text-gray-400">{{ notification.created_at }}</small>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock content %}

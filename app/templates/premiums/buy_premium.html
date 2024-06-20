@@ -1,0 +1,64 @@
+{% extends "layout2.html" %}
+{% block title %}Premium Packages{% endblock title %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        {% for package in packages %}
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ package.name }}</h5>
+                    <p class="card-text">Duration: {{ package.duration_days }} days</p>
+                    <p class="card-text">Price: ${{ package.price }}</p>
+                    <button class="btn btn-primary buy-package" data-package-id="{{ package.id }}">Buy</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if current_user.pending_premiums %}
+<h2>Your Pending Premium Requests</h2>
+<ul>
+    {% for pending in current_user.pending_premiums %}
+    <li>Package: {{ pending.package.name }} - Start Date: {{ pending.start_date }} - End Date: {{ pending.end_date }} - Approved: {{ 'Yes' if pending.approved else 'No' }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if current_user.expire_date %}
+<h2>Your Current Premium</h2>
+<p>Expires on: {{ current_user.expire_date }}</p>
+{% endif %}
+
+{% endblock content %}
+
+{% block extrajs %}
+<script>
+    document.querySelectorAll('.buy-package').forEach(button => {
+        button.addEventListener('click', function() {
+            const packageId = this.getAttribute('data-package-id');
+            fetch('{{ url_for('premium_bp.buy_premium') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({package_id: packageId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    alert(data.message);
+                    location.reload();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

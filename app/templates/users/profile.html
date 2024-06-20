@@ -1,0 +1,55 @@
+{% extends "layout2.html" %}
+
+{% block title %}Profile{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1>User Profile</h1>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ user.email }}</h5>
+                    <p class="card-text">
+                        <strong>Premium Status:</strong> {{ 'Yes' if user.premium else 'No' }}<br>
+                        <strong>Premium Expiry Date:</strong> {{ user.expire_date }}<br>
+                        <strong>Webhook URL:</strong> {{ additional_data.webhook_url }}<br>
+                    </p>
+                </div>
+            </div>
+                {% if current_user.id != user.id %}
+                    {% if user in additional_data['followers'] %}
+                        <form action="{{ url_for('profile_bp.unfollow_user', user_id=user.id) }}" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-danger">Unfollow</button>
+                        </form>
+                    {% else %}
+                        <form action="{{ url_for('profile_bp.follow_user', user_id=user.id) }}" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-primary">Follow</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+
+
+
+            <h3>Following</h3>
+            <ul class="list-group mb-3">
+                {% for sub in additional_data.subscriptions %}
+                <li class="list-group-item">
+                    {{ sub.premium_user.email }}
+                </li>
+                {% endfor %}
+            </ul>
+            <h3>Followers</h3>
+            <ul class="list-group mb-3">
+                {% for follower in additional_data.followers %}
+                <li class="list-group-item">
+                    {{ follower.follower.email }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock content %}

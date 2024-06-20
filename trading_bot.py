@@ -30,58 +30,125 @@ def against_side(side):
 
 
 
-def place_otoco_order(exchange, pair, order_type, side, position_amount, price, stop_loss_trigger_price, take_profit_trigger_price, positionSide):
+
+def place_order(exchange, pair, order_type, side, position_amount, price, stop_loss_trigger_price, take_profit_trigger_price1, take_profit_trigger_price2, tp_1_close_ratio, tp_2_close_ratio,tp_2_profit_ratio,positionSide, sl_method, trailing_stop_callback_rate, decimal_places):
     orders = []
-
-    # # Limit order
-    # limit_order = {
-    #     'symbol': pair,
-    #     'type': order_type,
-    #     'side': side,
-    #     'amount': position_amount,
-    #     'price': price,
-    #     'params': {
-    #         'marginMode': margin_mode,
-    #         'positionSide': positionSide,
-    #         'reduceOnly' : 'false',
-    #     }
-    # }
-    # orders.append(limit_order)
-
-    # Stop-loss order
-    stop_loss_order = {
+    print(f'tp trigger price: {take_profit_trigger_price1} , sl triger price: {stop_loss_trigger_price}')
+    Trailing_activation_price =str(round(take_profit_trigger_price1,decimal_places))
+    print(Trailing_activation_price)
+    # Limit order
+    limit_order = {
         'symbol': pair,
-        'type':  'STOP_MARKET',
-        'side': against_side(side),
-        'price': stop_loss_trigger_price,
+        'type': order_type,
+        'side': side,
         'amount': position_amount,
+        'price': price,
         'params': {
-            'stopPrice': stop_loss_trigger_price,
-            # 'marginMode': margin_mode,
-            'positionSide': positionSide,
-            'timeInForce' : 'GTE_GTC',
-            'workingType' : 'CONTRACT_PRICE' #'MARK_PRICE'
-
+            'positionSide': positionSide
         }
     }
-    orders.append(stop_loss_order)
+    orders.append(limit_order)
 
-    # Take-profit order
-    take_profit_order = {
-        'symbol': pair,
-        'type': 'TAKE_PROFIT',
-        'side': against_side(side),
-        'price': take_profit_trigger_price,
-        'amount': position_amount,
-        'params': {
-            'stopPrice': take_profit_trigger_price,
-            # 'marginMode': margin_mode,
-            'positionSide': positionSide,
-            'timeInForce' : 'GTE_GTC',
-            'workingType' : 'CONTRACT_PRICE'# 'MARK_PRICE'            
+    if sl_method == 'general':
+        # Stop-loss order (general method)
+        stop_loss_order = {
+            'symbol': pair,
+            'type': 'STOP_MARKET',
+            'side': against_side(side),
+            'price': stop_loss_trigger_price,
+            'amount': position_amount,
+            'params': {
+                'stopPrice': stop_loss_trigger_price,
+                'positionSide': positionSide,
+                'timeInForce': 'GTE_GTC',
+                'workingType': 'CONTRACT_PRICE'
+            }
         }
-    }
-    orders.append(take_profit_order)
+        orders.append(stop_loss_order)
+
+    elif sl_method == 'trailing':
+        # Trailing stop order
+        trailing_stop_order = {
+            'symbol': pair,
+            'type': 'TRAILING_STOP_MARKET',
+            'side': against_side(side),
+            'price': price,
+            'amount': position_amount,
+            'params': {
+                'activationprice' : Trailing_activation_price,
+                'trailingPercent': trailing_stop_callback_rate,
+                'positionSide': positionSide,
+                'timeInForce': 'GTE_GTC'
+            }
+        }
+        orders.append(trailing_stop_order)
+
+        stop_loss_order = {
+            'symbol': pair,
+            'type': 'STOP_MARKET',
+            'side': against_side(side),
+            'price': stop_loss_trigger_price,
+            'amount': position_amount,
+            'params': {
+                'stopPrice': stop_loss_trigger_price,
+                'positionSide': positionSide,
+                'timeInForce': 'GTE_GTC',
+                'workingType': 'CONTRACT_PRICE'
+            }
+        }
+        orders.append(stop_loss_order)
+
+
+    if tp_2_profit_ratio > 0:
+        # Take-profit order1
+        take_profit_order1 = {
+            'symbol': pair,
+            'type': 'TAKE_PROFIT',
+            'side': against_side(side),
+            'price': take_profit_trigger_price1,
+            'amount': (position_amount * tp_1_close_ratio)/100,
+            'params': {
+                'stopPrice': take_profit_trigger_price1,
+                'positionSide': positionSide,
+                'timeInForce': 'GTE_GTC',
+                'workingType': 'CONTRACT_PRICE'
+            }
+        }
+        orders.append(take_profit_order1)
+
+    # Take-profit order2
+        take_profit_order2 = {
+            'symbol': pair,
+            'type': 'TAKE_PROFIT',
+            'side': against_side(side),
+            'price': take_profit_trigger_price2,
+            'amount': (position_amount * tp_2_close_ratio)/100,
+            'params': {
+                'stopPrice': take_profit_trigger_price2,
+                'positionSide': positionSide,
+                'timeInForce': 'GTE_GTC',
+                'workingType': 'CONTRACT_PRICE'
+            }
+        }
+        orders.append(take_profit_order2)
+    
+    elif tp_2_profit_ratio == 0 or tp_2_profit_ratio == None:
+        # Take-profit order1
+        take_profit_order1 = {
+            'symbol': pair,
+            'type': 'TAKE_PROFIT',
+            'side': against_side(side),
+            'price': take_profit_trigger_price1,
+            'amount': (position_amount * tp_1_close_ratio)/100,
+            'params': {
+                'stopPrice': take_profit_trigger_price1,
+                'positionSide': positionSide,
+                'timeInForce': 'GTE_GTC',
+                'workingType': 'CONTRACT_PRICE'
+            }
+        }
+        orders.append(take_profit_order1)
+
 
     try:
         response = exchange.create_orders(orders)
@@ -89,6 +156,7 @@ def place_otoco_order(exchange, pair, order_type, side, position_amount, price, 
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
+
 
 # Function to check if a coin pair is in the positions list
 def is_coin_pair_in_positions(positions, coin_pair):
@@ -98,9 +166,19 @@ def is_coin_pair_in_positions(positions, coin_pair):
             return True
     return False
 
+def count_decimal_places(min_price):
+    min_price = str(min_price)
+    if '.' in str(min_price):
+        integer_part, fractional_part = min_price.split('.')
+        decimal_places = len(fractional_part) 
+        return decimal_places
+
+    else:
+        return 1
+
 
 # def execute_trade(pair, side, user_id, api_key, api_secret, order_type):
-def execute_trade(pair, side, user):
+def execute_trade(pair, side, user, trade_id):
 
     try:
         api_key = user.api_key.decode('utf-8')
@@ -130,7 +208,7 @@ def execute_trade(pair, side, user):
 
 
         # Print filtered positions
-        pprint(filtered_positions)
+        # pprint(filtered_positions)
         print(f"\nrunning positions count :{running_position_count}")
 
         user_settings = fetch_user_settings(user.id)
@@ -158,6 +236,10 @@ def execute_trade(pair, side, user):
             persition = market['precision']['price']
             min_amount = market['limits']['amount']['min']
             
+            decimal_places = count_decimal_places(min_price)
+
+
+
             # min_price = float(min_price + 0.1) if float(min_price + 0.1) > float(min_cost + 0.1) else float(min_cost + 0.1) # nomrmalized minimum cost to fix errors
             x = (min_amount * last_price)
             min_price = x if (x > min_price + persition) else ((min_price + persition) if (min_price+persition > min_cost + persition) else min_cost + persition)
@@ -169,6 +251,12 @@ def execute_trade(pair, side, user):
             saved_leverage = user_settings.leverage
             long_allowcated_margin = user_settings.defined_long_margine_per_trade 
             short_allowcated_margin = user_settings.defined_short_margine_per_trade
+            sl_method = user_settings.sl_method
+            trailing_callback_rate = user_settings.trailing_stop_callback_rate
+            tp_1_profit_ratio =user_settings.take_profit_percentage 
+            tp_2_profit_ratio =user_settings.take_profit_percentage2             
+            tp_1_close_ratio = user_settings.tp1_close_amount
+            tp_2_close_ratio = user_settings.tp2_close_amount            
 
 
             exchange.set_leverage(saved_leverage, pair)
@@ -209,8 +297,8 @@ def execute_trade(pair, side, user):
                 price = None
 
             stop_loss_trigger_price = (last_price if order_type == 'market' else price) * ((1-(user_settings.stop_loss_percentage/100)) if side == 'buy' else (1+(user_settings.stop_loss_percentage/100)))
-            take_profit_trigger_price = (last_price if order_type == 'market' else price) * ((1+(user_settings.take_profit_percentage/100)) if side == 'buy' else (1-(user_settings.take_profit_percentage/100)))
-
+            take_profit_trigger_price1 = (last_price if order_type == 'market' else price) * ((1+(user_settings.take_profit_percentage/100)) if side == 'buy' else (1-(user_settings.take_profit_percentage/100)))
+            take_profit_trigger_price2 = (last_price if order_type == 'market' else price) * ((1+(user_settings.take_profit_percentage2/100)) if side == 'buy' else (1-(user_settings.take_profit_percentage2/100)))
             params = {
                 'marginMode' : margin_mode,
                 'positionSide': positionSide
@@ -231,16 +319,11 @@ def execute_trade(pair, side, user):
                 created_order = None
             
                 # ------------------------------
-                created_order = exchange.create_order(pair, order_type, side, position_amount, price, params= {'marginMode' : margin_mode,'positionSide': positionSide,})
-                order_response = place_otoco_order(exchange, pair, order_type, side, position_amount, price, stop_loss_trigger_price, take_profit_trigger_price, positionSide)
+                # created_order = exchange.create_order(pair, order_type, side, position_amount, price, params= {'marginMode' : margin_mode,'positionSide': positionSide,})
+                order_response = place_order(exchange, pair, order_type, side, position_amount, price, stop_loss_trigger_price, take_profit_trigger_price1, take_profit_trigger_price2, tp_1_close_ratio, tp_2_close_ratio ,tp_2_profit_ratio, positionSide, sl_method, trailing_stop_callback_rate=trailing_callback_rate, decimal_places= decimal_places)
                 print(f"created order : {created_order}")
                 print(f"tp sl: {order_response}")
                 
-                # Deduct fuel and execute trade
-                user.fuel_balance -= 10
-                db.session.commit()
-
-
                 # Extract relevant details
                 extracted_orders = []
                 if order_response:
@@ -254,7 +337,8 @@ def execute_trade(pair, side, user):
                             'stopPrice': order_info['stopPrice'],
                             'quantity': order_info['origQty'],
                             'status' : order_info['status'],
-                            'side' : order_info['side']
+                            'side' : order_info['side'],
+                            'avgPrice' : order_info['avgPrice']
                         }
                         extracted_orders.append(extracted_order)
 
@@ -268,21 +352,33 @@ def execute_trade(pair, side, user):
                         print(f"Quantity: {extracted_order['quantity']}")
                         print(f"status: {extracted_order['status']}")
                         print(f"side: {extracted_order['side']}")
+                        print(f"avgPrice: {extracted_order['avgPrice']}")
 
                         message = extracted_order['origType']
                         orderid = extracted_order['orderId']
-                        save_trade_tpsl(user.id, extracted_order, message, orderid)
+
+                        # Deduct fuel and execute trade
+                        user.fuel_balance -= 10
+                        db.session.commit()
+                        save_trade_tpsl(user.id, extracted_order, message, orderid, trade_id)
+                        if message == 'MARKET':
+                            tg_alert = f"─── ⋆⋅☆⋅⋆ ──\n<b><u>New trade executed!</u></b>\n {extracted_order['side']} {'{:.4f}'.format(float(extracted_order['quantity']))} of {extracted_order['symbol']} \n🎲    Entry at {'{:.4f}'.format(float(extracted_order['avgPrice']))} \n🐳    TP1 at {'{:.4f}'.format(take_profit_trigger_price1)} \n🐳    TP2 at {'{:.4f}'.format(take_profit_trigger_price2)} \n🐡    SL at {'{:.4f}'.format(stop_loss_trigger_price)} \n─── ⋆⋅☆⋅⋆ ──"
+                            telegram(user, tg_alert)
+
                         print("\n")
 
-                if created_order:
-                    message = created_order['info']['type']
-                    orderid = created_order['info']['orderId']
-                    save_trade(user.id, created_order, message, orderid)
+                # if created_order:
+                #     message = created_order['info']['type']
+                #     orderid = created_order['info']['orderId']
+                #     # Deduct fuel and execute trade
+                #     user.fuel_balance -= 10
+                #     db.session.commit()
+                #     save_trade(user.id, created_order, message, orderid)
 
-                #  alert sent--------- 
-                if created_order:               
-                    message = f"─── ⋆⋅☆⋅⋆ ──\n<b><u>New trade executed!</u></b>\n {side} {'{:.4f}'.format(position_amount)} of {pair} \n🎲    Entry at {'{:.4f}'.format(created_order['price'])} \n🐳    TP at {'{:.4f}'.format(take_profit_trigger_price)} \n🐡    SL at {'{:.4f}'.format(stop_loss_trigger_price)} \n─── ⋆⋅☆⋅⋆ ──"
-                    telegram(user, message)
+                # #  alert sent--------- 
+                # if created_order:               
+                #     message = f"─── ⋆⋅☆⋅⋆ ──\n<b><u>New trade executed!</u></b>\n {side} {'{:.4f}'.format(position_amount)} of {pair} \n🎲    Entry at {'{:.4f}'.format(created_order['price'])} \n🐳    TP at {'{:.4f}'.format(take_profit_trigger_price)} \n🐡    SL at {'{:.4f}'.format(stop_loss_trigger_price)} \n─── ⋆⋅☆⋅⋆ ──"
+                #     telegram(user, message)
 
                 # Update databse 
                 try:
@@ -305,8 +401,6 @@ def execute_trade(pair, side, user):
                 print(str(e))
                 message = f"🚧 Hey {user.email}!\nGot an error while trying to execute trade. {str(e)} . Please visit User guide page to fix it. "
                 telegram(user, message)
-
-
 
             print('---------------------Execution End--------------------------------------------------')
 

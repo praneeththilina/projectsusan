@@ -1,0 +1,57 @@
+{% extends "layout2.html" %}
+{% block title %}Webhook Regenerate | Project Susan{% endblock title %}
+{% block extrascripts %} {% endblock extrascripts %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 col-sm-12">  
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <h3> Generate Webhook URL</h3>
+                <div class="avatar-sm flex-shrink-0">
+                    <span class="avatar-title bg-info-subtle rounded-circle fs-2">
+                        <i class="las la-retweet text-success"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="generateWebhookForm" method="post" action="{{ url_for('custom_webhook_bp.generate_webhook') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-primary btn-label waves-effect waves-light rounded-pill me-2">
+                        <i class="ri-user-smile-line label-icon align-middle rounded-pill fs-16 me-2"></i> Generate Webhook URL
+                    </button>
+                </form>
+                <div>
+                    <br>
+                    <textarea rows="3" type="text" class="form-control" id="disabledInput" disabled>http://projectsusan.eu.pythonanywhere.com/webhook/{{ current_user.webhook_url.url }} </textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+
+<script>
+    document.getElementById('generateWebhookForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        fetch(this.action, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value,
+                'Authorization': 'Bearer ' + localStorage.getItem('token')  // Assuming you're using token-based authentication
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('disabledInput').value = 'Error: ' + data.error;
+            } else {
+                document.getElementById('disabledInput').value = 'http://projectsusan.eu.pythonanywhere.com/webhook/' + data.webhook_url;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+{% endblock extrajs %}

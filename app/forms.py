@@ -32,10 +32,15 @@ class PurchaseFuelForm(FlaskForm):
         self.package.choices = [(pkg.id, pkg.name) for pkg in BotFuelPackage.query.all()]
 
 class SettingsForm(FlaskForm):
-    take_profit_percentage = FloatField('Take Profit Percentage', validators=[DataRequired(), NumberRange(min=0, max=100)],render_kw={"class": "percentage-input", "type": "number", "step": "any"})
+    take_profit_percentage = FloatField('TP 1 Ratio', validators=[DataRequired(), NumberRange(min=0, max=100)],render_kw={"class": "percentage-input", "type": "number", "step": "any"})
+    take_profit_percentage2 = FloatField('TP 2 Ratio', validators=[DataRequired(), NumberRange(min=0, max=100)],render_kw={"class": "percentage-input", "type": "number", "step": "any"})
+    tp1_close_ratio = FloatField('TP 1 close Ratio', validators=[DataRequired(), NumberRange(min=0, max=100)],render_kw={"class": "percentage-input", "type": "number", "step": "any"})
+    tp2_close_ratio = FloatField('TP 2 close Ratio', validators=[DataRequired(), NumberRange(min=0, max=100)],render_kw={"class": "percentage-input", "type": "number", "step": "any"})
     stop_loss_percentage = FloatField('Stop Loss Percentage', validators=[DataRequired(), NumberRange(min=0, max=100)],render_kw={"class": "percentage-input", "type": "number", "step": "any"})
-    order_type = SelectField('Order Type', choices=[('market', 'Market'), ('limit', 'Limit')],validators=[DataRequired()], render_kw={"class": "dropdown"})
+    order_type = SelectField('Order Type', choices=[('limit', 'Limit'), ('market', 'Market')], validators=[DataRequired()])
     leverage = FloatField('Leverage', validators=[DataRequired(), NumberRange(min=0, max=100)])
+    sl_method = SelectField('SL Method', choices=[('general', 'FIXED SL'), ('trailing', 'TRAILING STOP')], validators=[DataRequired()], default='general')
+    trailing_callback_ratio = FloatField('Callback Rate', validators=[DataRequired(), NumberRange(min=0, max=10)])
     concorrent = IntegerField('Concurrent Trades Limit', validators=[DataRequired(), NumberRange(min=2, max=50)])
     defined_long_margine_per_trade = FloatField('Defined Margine Per Trade', validators=[DataRequired()])
     defined_short_margine_per_trade = FloatField('Defined Margine Per Trade', validators=[DataRequired()])

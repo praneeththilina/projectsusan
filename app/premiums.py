@@ -22,7 +22,7 @@ def buy_premium():
         return jsonify({"error": "Invalid package"}), 400
 
     now = datetime.datetime.now()
-    if current_user.expire_date:
+    if current_user.expire_date >  now:
         start_date = current_user.expire_date + datetime.timedelta(seconds=1)
     else:
         start_date = now
@@ -59,18 +59,29 @@ def approve_premium(pending_id):
     if not pending_premium:
         return jsonify({"error": "Pending premium not found"}), 404
 
+    # Mark the pending premium as approved
     pending_premium.approved = True
+
+    # Fetch the user and the associated premium package
     user = pending_premium.user
-    if not user.premium:
-        user.premium = True
-        user.expire_date = pending_premium.end_date
+    package = pending_premium.package
 
-    if user.premium:
-        user.expire_date = pending_premium.end_date
+    # Calculate the new expiration date based on the current time and package duration
+    if user.expire_date and user.expire_date > datetime.datetime.now():
+        # If the user already has a premium and it hasn't expired, extend from the existing expiration date
+        user.expire_date += datetime.timedelta(days=package.duration_days)
+    else:
+        # Otherwise, start from now
+        user.expire_date = datetime.datetime.now() + datetime.timedelta(days=package.duration_days)
 
+    # Ensure the user is marked as having a premium
+    user.premium = True
+
+    # Commit the changes to the database
     db.session.commit()
 
     return jsonify({"message": "Premium request approved"}), 200
+
 
 @premium_bp.route('/admin/reject_premium/<int:pending_id>', methods=['POST'])
 @auth_required('token', 'session')

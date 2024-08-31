@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 from .config import Config
 from datetime import datetime
 from pytz import timezone
+from functools import wraps
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -25,16 +26,31 @@ load_dotenv()
 
 # Initialize Limiter
 limiter = Limiter(key_func=get_remote_address, 
-                    default_limits=["100000 per day", "10000 per hour"],
+                    default_limits=["1000 per day", "20 per hour"],
                     storage_uri="memory://"
                 )
 
 
 
+
+def rate_limit_if_not_admin(limit_string):
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            if current_user.has_role('admin'):
+                # Admin user, skip rate limiting
+                return f(*args, **kwargs)
+            else:
+                # Apply rate limiting for non-admin users
+                return limiter.limit(limit_string, key_func=lambda: current_user.id)(f)(*args, **kwargs)
+        return wrapped
+    return decorator
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    cache.init_app(app)
+    # cache.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
@@ -120,7 +136,6 @@ def create_app():
     @app.before_request
     def create_default_data():
         initialize_default_data(user_datastore)
-
 
     def initialize_default_data(user_datastore):
         with app.app_context():

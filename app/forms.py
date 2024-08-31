@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, SubmitField, DateTimeField, SelectField, HiddenField,\
-            RadioField, IntegerField
+            RadioField, IntegerField, BooleanField
 from wtforms.validators import DataRequired, NumberRange, ValidationError
 from .models import BotFuelPackage
 import pytz
@@ -19,6 +19,7 @@ class TradeForm(FlaskForm):
 class APIForm(FlaskForm):
     api_key = StringField('API Key', validators=[DataRequired()])
     api_secret = StringField('API Secret', validators=[DataRequired()])
+    testnet = BooleanField('Use Testnet')
     submit = SubmitField('Bind with Binance')
 
 class PurchaseFuelForm(FlaskForm):

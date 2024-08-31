@@ -155,7 +155,7 @@ class Trade(db.Model):
     trade_id = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.now)
     pair = db.Column(db.String(30))
-    comment = db.Column(db.String(10))
+    comment = db.Column(db.String(20))
     orderid = db.Column(db.String(30))
     status = db.Column(db.String(15))
     realized_pnl = db.Column(db.Float, default='0.0')
@@ -186,6 +186,7 @@ class UserSettings(db.Model):
     tg_chatid = db.Column(db.String(15), nullable=True )
     sl_method = db.Column(db.String(10), default='general')
     trailing_stop_callback_rate = db.Column(db.Numeric(4, 3), nullable=True)
+    testnet = db.Column(db.Boolean, default=True)
 
     user = db.relationship("User", back_populates="settings")
 

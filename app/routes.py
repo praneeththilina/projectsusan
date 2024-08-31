@@ -7,10 +7,10 @@ from flask_login import login_required, current_user, logout_user
 
 from .forms import TradeForm, APIForm, SettingsForm, MarkAsReadForm,AvatarSelectionForm, PurchaseFuelForm
 from .models import User, UserSettings, Notification, Trade, BotFuelPackage, BotFuelTransaction, IDCounter
-from . import limiter, cache
+from . import limiter, rate_limit_if_not_admin
 from trading_bot import execute_trade  # Your function to execute trades
 from datetime import datetime, timedelta
-from app.utils import get_ccxt_instance
+from app.utils import get_ccxt_instance, fetch_balance
 from .utils import flash_and_telegram, save_notification, telegram, convert_utc_to_local
 from . import db
 from collections import OrderedDict
@@ -176,29 +176,6 @@ def trade():
         return redirect(url_for('main.dashboard'))
     return render_template('trade.html', form=form)
 
-# @main.route('/api_credentials', methods=['GET', 'POST'])
-# @auth_required('token', 'session')
-# def api_credentials():
-#     form = APIForm()
-#     if form.validate_on_submit():
-#         api_key = form.api_key.data
-#         api_secret = form.api_secret.data
-#         exchange = get_ccxt_instance(api_key, api_secret)
-
-#         try:
-#             exchange.fetch_balance()  # Verify API credentials
-#             current_user.api_key = api_key
-#             current_user.api_secret = api_secret
-#             db.session.commit()
-#             telegram(current_user, f'🚨 <b>API credentials receintly updated!</b> \n\nHey {current_user.email}!,  Make sure about these changes by you.')
-#             flash('API credentials receintly updated!', 'success')
-#             return redirect(url_for('main.dashboard'))
-#         except Exception as e:
-#             flash(f'Invalid API credentials: {e}', 'error')
-#             telegram(current_user, f'🚨 <b>Invalid API credentials!</b> \n\nHey {current_user.email}!,  Are you trying to <b><u>add|change</u></b> API keys in your account? <b>I think it is not a valid one. 🤦‍♀️</b> \n<u>Try again</u>. Here is error data \n{str(e)}')
-
-
-#     return render_template('api_credentials.html', form=form)
 
 @main.route('/api_credentials', methods=['GET', 'POST'])
 @auth_required('token', 'session')
@@ -212,12 +189,14 @@ def api_credentials():
     if form.validate_on_submit():
         api_key = form.api_key.data
         api_secret = form.api_secret.data
-        exchange = get_ccxt_instance(api_key, api_secret)
+        testnet = form.testnet.data
+        exchange = get_ccxt_instance(api_key, api_secret, testnet)
 
         try:
             exchange.fetch_balance()  # Verify API credentials
             current_user.api_key = api_key
             current_user.api_secret = api_secret
+            current_user.settings.testnet = testnet
             db.session.commit()
             telegram(current_user, f'🚨 <b>API credentials recently updated!</b> \n\nHey {current_user.email}!,  Make sure about these changes by you.')
             flash('API credentials recently updated!', 'success')
@@ -227,25 +206,43 @@ def api_credentials():
             telegram(current_user, f'🚨 <b>Invalid API credentials!</b> \n\nHey {current_user.email}!,  Are you trying to <b><u>add|change</u></b> API keys in your account? <b>I think it is not a valid one. 🤦‍♀️</b> \n<u>Try again</u>. Here is error data \n{str(e)}')
 
     # Call the new route to check the API status
-    api_status = check_api_status()
+    # api_status = check_api_status().json
     
-    return render_template('api_credentials.html', form=form, api_status=api_status)
+    return render_template('api_credentials.html', form=form, testnet_status=current_user.settings.testnet)
+
+
+
+
+def limit_by_role():
+    if current_user.has_role('admin'):
+        return f"admin:{current_user.id}"
+    return f"user:{current_user.id}"
 
 
 @main.route('/check_api_status')
 @auth_required('token', 'session')
 @roles_accepted('admin', 'user')
-@cache.cached(timeout=1800)  # Cache the response for 30 minutes
+@rate_limit_if_not_admin("5 per day")
 def check_api_status():
-    if not current_user.api_key or not current_user.api_secret:
-        return {"status": "not_connected"}
+    # if not current_user.api_key or not current_user.api_secret:
+    #     return jsonify({"status": "not_connected"})
 
-    exchange = get_ccxt_instance(current_user.api_key, current_user.api_secret)
     try:
-        exchange.fetch_balance()  # Verify API credentials
-        return {"status": "connected"}
-    except Exception:
-        return {"status": "not_connected"}
+        api_key = current_user.api_key.decode('utf-8')
+        api_secret = current_user.api_secret.decode('utf-8')
+        testnet = current_user.settings.testnet
+
+        # # Debugging prints
+        # print("API Key:", api_key)
+        # print("API Secret:", api_secret)
+        # print("Testnet:", testnet)
+
+        exchange = get_ccxt_instance(api_key, api_secret, testnet)
+        a = fetch_balance(exchange)  # Verify API credentials
+        return jsonify({"status": "connected"})
+    except Exception as e:
+        print("Error:", str(e))  # Print the exception for debugging
+        return jsonify({"status": "not_connected"})
 
 @main.route('/accept_terms', methods=['GET', 'POST'])
 @auth_required('token', 'session')
@@ -314,21 +311,21 @@ def settings():
                     settings = UserSettings(user_id=current_user.id)  # type: ignore
                     db.session.add(settings)
 
-                settings.take_profit_percentage = form.take_profit_percentage.data
-                settings.stop_loss_percentage = form.stop_loss_percentage.data
                 settings.leverage = form.leverage.data
-                settings.order_type = form.order_type.data
+                settings.sl_method = form.sl_method.data
+                settings.trailing_stop_callback_rate = form.trailing_callback_ratio.data
+                settings.take_profit_percentage = form.take_profit_percentage.data
+                settings.take_profit_percentage2 = form.take_profit_percentage2.data
+                settings.tp1_close_amount = form.tp1_close_ratio.data
+                settings.tp2_close_amount = form.tp2_close_ratio.data
+                settings.stop_loss_percentage = form.stop_loss_percentage.data
                 settings.defined_long_margine_per_trade = form.defined_long_margine_per_trade.data
                 settings.defined_short_margine_per_trade = form.defined_short_margine_per_trade.data
                 settings.max_concurrent = form.concorrent.data
+                settings.order_type = form.order_type.data
                 settings.tg_chatid = form.tg_chatid.data
                 settings.margin_Mode = form.marginMode.data
                 current_user.timezone = form.timezone.data
-                settings.sl_method = form.sl_method.data
-                settings.trailing_stop_callback_rate = form.trailing_callback_ratio.data
-                settings.take_profit_percentage2 = form.trailing_callback_ratio.data
-                settings.tp1_close_amount = form.tp1_close_ratio.data
-                settings.tp2_close_amount = form.tp2_close_ratio.data
 
                 db.session.commit()
 
@@ -348,9 +345,11 @@ def settings():
                 return redirect(url_for('main.settings'))
 
     if current_user.settings:
-        form.take_profit_percentage.data = current_user.settings.take_profit_percentage
-        form.stop_loss_percentage.data = current_user.settings.stop_loss_percentage
         form.leverage.data = current_user.settings.leverage
+        form.sl_method.data = current_user.settings.sl_method
+        form.take_profit_percentage.data = current_user.settings.take_profit_percentage
+        form.take_profit_percentage2.data = current_user.settings.take_profit_percentage2
+        form.stop_loss_percentage.data = current_user.settings.stop_loss_percentage
         form.defined_long_margine_per_trade.data = current_user.settings.defined_long_margine_per_trade
         form.defined_short_margine_per_trade.data = current_user.settings.defined_short_margine_per_trade
         form.concorrent.data = current_user.settings.max_concurrent
@@ -362,9 +361,7 @@ def settings():
         else:
             form.timezone.data = 'Asia/Colombo'  # Preselect Asia/Colombo if no timezone is set
         form.order_type.data = current_user.settings.order_type
-        form.sl_method.data = current_user.settings.sl_method
         form.trailing_callback_ratio.data = current_user.settings.trailing_stop_callback_rate
-        form.take_profit_percentage2.data = current_user.settings.take_profit_percentage2
         form.tp1_close_ratio.data = current_user.settings.tp1_close_amount
         form.tp2_close_ratio.data = current_user.settings.tp2_close_amount
 

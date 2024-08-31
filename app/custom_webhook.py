@@ -10,7 +10,7 @@ custom_webhook_bp = Blueprint('custom_webhook_bp', __name__)
 @auth_required('token', 'session') #implementation need for role based
 def generate_webhook():
     if request.method == 'GET':
-        return render_template('webhooks/generate_webhook.html')
+        return render_template('settings.html')
 
     if not current_user.premium:
         return jsonify({"error": "Only Premium members can generate a webhook URL"}), 403

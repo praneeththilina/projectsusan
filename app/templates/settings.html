@@ -1,36 +1,29 @@
 {% extends "layout2.html" %}
 {% block title %}Settings | Project Susan{% endblock title %}
+{% block custom_page_title %} Settings{%- endblock %}
 {% block content %}
-    <!-- start page title -->
 <div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">Settings</h4>
-
-            <div class="page-title-right">
-                <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item"><a href="javascript: void(0);">Configs</a></li>
-                    <li class="breadcrumb-item active">Settings</li>
-                </ol>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-12">
+    <div class="col-md-6 col-sm-12">
         <div class="card">
-            <div class="card-body p-4">
+            <div class="card-body p-4  d-flex">
                 <!-- Grids in modals -->
-                <div class="profile-user position-relative d-inline-block mx-auto  mb-4">
-                    <img src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" class="rounded-circle avatar-xl img-thumbnail user-profile-image" alt="user-profile-image" height="" width="">
-                    <div class="avatar-xs p-0 rounded-circle profile-photo-edit">
-                        <label for="profile-img-file-input" class="profile-photo-edit avatar-xs">
-                            <span class="avatar-title rounded-circle bg-light text-body" data-bs-toggle="modal" data-bs-target="#exampleModalgrid"> 
-                                <i class="ri-camera-fill"></i>
-                            </span>
-                            
-                        </label>
+                <div  class="col-6">
+                    <div class="profile-user position-relative d-inline-block mx-auto  mb-4">
+                        <img src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}" class="rounded-circle avatar-xl img-thumbnail user-profile-image" alt="user-profile-image" height="" width="">
+                        <div class="avatar-xs p-0 rounded-circle profile-photo-edit">
+                            <label for="profile-img-file-input" class="profile-photo-edit avatar-xs">
+                                <span class="avatar-title rounded-circle bg-light text-body" data-bs-toggle="modal" data-bs-target="#exampleModalgrid"> 
+                                    <i class="ri-camera-fill"></i>
+                                </span>
+                                
+                            </label>
+                        </div>
                     </div>
+                </div>
+                <div  class="col-6">
+                    <h3>{{ current_user.username }}</h3>
+                    <p><i class="mdi mdi-email text-muted fs-16 align-middle me-1"></i>{{ current_user.email }}</p>
+                
                 </div>
                 <div class="modal fade" id="exampleModalgrid" tabindex="-1" aria-labelledby="exampleModalgridLabel" aria-modal="true">
                     <div class="modal-dialog">
@@ -66,96 +59,148 @@
                 <!-- End Grids in modals -->
             </div>
         </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-12">
         <div class="card">
-            <div class="card-header">
-                <h3>Trade Settings</h3>
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Generate Webhook URL</h4>
             </div>
+
+            <div class="card-body">
+                <form id="generateWebhookForm" method="post" action="{{ url_for('custom_webhook_bp.generate_webhook') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-primary btn-label waves-effect waves-light rounded-pill me-2">
+                        <i class="ri-user-smile-line label-icon align-middle rounded-pill fs-16 me-2"></i> Generate Webhook URL
+                    </button>
+                </form>
+                <div>
+                    <br>
+                    <textarea rows="3" type="text" class="form-control" id="disabledInput" disabled>http://projectsusan.eu.pythonanywhere.com/webhook/{{ current_user.webhook_url.url }} </textarea>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-md-6 col-sm-12">
+        <div class="card">
+
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Trade Settings</h4>
+            </div>
+
             <div class="card-body">
             
             <form method="post" class="w-full">
             {{ form.hidden_tag() }}
             <div class="row">
-                <div class="col-sm-6 col-md-4">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text col-6">Leverage</span>
-                        {{ form.leverage(class="form-control col-6") }}
-                        <span class="input-group-text"><i class="bx bx-x text-danger fs-22"></i></span>
-                            {% if form.leverage.errors %}
-                                <p class="text-red-500 text-xs italic mt-1">{{ form.leverage.errors[0] }}</p>
-                            {% endif %}
+                <div  class="d-flex justify-content-center align-items-center gap-2">
+                    <div class="col-sm-6 col-md-6">
+                        <div class="btn-group-sm mb-3 ">
+                            {{ form.marginMode(class="form-select form-select-sm rounded-pill  bg-info col-6") }}
+                                {% if form.marginMode.errors %}
+                                    <p class="text-red-500 text-xs italic mt-1">{{ form.marginMode.errors[0] }}</p>
+                                {% endif %}
+                        </div>
+                    </div> 
+                    <div class="col-sm-3 col-md-3">
+                        <div class="input-group input-group-sm mb-3">
+                            {{ form.leverage(class="form-control form-contro bg-info l-sm col-6") }}
+                            <span class="input-group-text">x</span>
+                                {% if form.leverage.errors %}
+                                    <p class="text-red-500 text-xs italic mt-1">{{ form.leverage.errors[0] }}</p>
+                                {% endif %}
+                        </div>
                     </div>
-                </div>
-                <div class="col-sm-6 col-md-4">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text col-6">SL Method</span>
-                        {{ form.sl_method(class="form-control col-6") }}
-                        <span class="input-group-text"><i class="las la-compress p-right-4 fs-22 text-info"></i></span>
-                        {% if form.sl_method.errors %}
-                            <p class="text-red-500 text-xs italic mt-1">{{ form.sl_method.errors[0] }}</p>
-                        {% endif %}
-                    </div>
+                    <div class="col-sm-3 col-md-3">
+                        <div class="input-group input-group-sm mb-3">
+                            {{ form.order_type(class="form-control form-contro l-sm col-6") }}
+                                {% if form.order_type.errors %}
+                                    <p class="text-red-500 text-xs italic mt-1">{{ form.order_type.errors[0] }}</p>
+                                {% endif %}
+                        </div>
+                    </div> 
+
                 </div>
 
-                <div class="col-sm-6 col-md-4">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text col-6">Callback Rate</span>
-                        {{ form.trailing_callback_ratio(class="form-control col-6") }}
-                        <span class="input-group-text"><i class="las la-percent text-success fs-22"></i></span>
-                        {% if form.trailing_callback_ratio.errors %}
-                            <p class="text-red-500 text-xs italic mt-1">{{ form.trailing_callback_ratio.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-                </div>
 
-                <div class="col-sm-6 col-md-4">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text col-6  bg-success text-white">TP1 Ratio</span>
-                        {{ form.take_profit_percentage(class="form-control col-6") }}
+
+
+            <div class="card-header justify-content-center align-items-center d-flex mb-1">
+                <h6 class="card-title">Take  Profits</h6>
+            </div>
+
+                <div class="col-sm-6 col-md-6">
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text  bg-success text-white">TP1 Ratio</span>
+                        {{ form.take_profit_percentage(class="form-control") }}
                         <span class="input-group-text"><i class="las la-percent text-success fs-22"></i></span>
                             {% if form.take_profit_percentage.errors %}
                                 <p class="text-red-500 text-xs italic mt-1">{{ form.take_profit_percentage.errors[0] }}</p>
                             {% endif %}
                     </div>
                 </div> 
-                <div class="col-sm-6 col-md-4">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text col-6  bg-success text-white">TP2 Ratio</span>
-                        {{ form.take_profit_percentage2(class="form-control col-6") }}
+                <div class="col-sm-6 col-md-6">
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text  bg-success text-white">TP2 Ratio</span>
+                        {{ form.take_profit_percentage2(class="form-control") }}
                         <span class="input-group-text"><i class="las la-percent text-success fs-22"></i></span>
                             {% if form.take_profit_percentage2.errors %}
                                 <p class="text-red-500 text-xs italic mt-1">{{ form.take_profit_percentage2.errors[0] }}</p>
                             {% endif %}
                     </div>
                 </div> 
-                <div class="col-sm-6 col-md-4">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text col-6  bg-success text-white">TP1 Hit Close Ratio</span>
-                        {{ form.tp1_close_ratio(class="form-control col-6") }}
+                <div class="col-sm-6 col-md-6">
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text  bg-success text-white">TP1 Hit Close Ratio</span>
+                        {{ form.tp1_close_ratio(class="form-control") }}
                         <span class="input-group-text"><i class="las la-percent text-success fs-22"></i></span>
                             {% if form.tp1_close_ratio.errors %}
                                 <p class="text-red-500 text-xs italic mt-1">{{ form.tp1_close_ratio.errors[0] }}</p>
                             {% endif %}
                     </div>
                 </div> 
-                <div class="col-sm-6 col-md-4">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text col-6  bg-success text-white">TP2 Hit Close Ratio</span>
-                        {{ form.tp2_close_ratio(class="form-control col-6") }}
+                <div class="col-sm-6 col-md-6">
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text  bg-success text-white">TP2 Hit Close Ratio</span>
+                        {{ form.tp2_close_ratio(class="form-control") }}
                         <span class="input-group-text"><i class="las la-percent text-success fs-22"></i></span>
                             {% if form.tp2_close_ratio.errors %}
                                 <p class="text-red-500 text-xs italic mt-1">{{ form.tp2_close_ratio.errors[0] }}</p>
                             {% endif %}
                     </div>
                 </div> 
-                <div class="col-sm-6 col-md-4">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text col-6  bg-danger text-white">SL Ratio</span>
-                        {{ form.stop_loss_percentage(class="form-control col-6") }}
+
+
+
+            <div class="card-header justify-content-center align-items-center d-flex">
+                <h6 class="card-title mb-1">Risk Management</h6>
+            </div>
+                <div  class="d-flex justify-content-center align-items-center gap-2">
+                    <div class="col-sm-6 col-md-6">
+                        <div class="input-group input-group-sm  mb-3">
+                            <span class="input-group-text">SL Method</span>
+                            {{ form.sl_method(class="form-select form-select-sm") }}
+                            {% if form.sl_method.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.sl_method.errors[0] }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-6">
+                        <div class="input-group input-group-sm  mb-3">
+                            <span class="input-group-text">Callback Rate</span>
+                            {{ form.trailing_callback_ratio(class="form-control form-control-sm") }}
+                            <span class="input-group-text"><i class="las la-percent text-success fs-22"></i></span>
+                            {% if form.trailing_callback_ratio.errors %}
+                                <p class="text-red-500 text-xs italic mt-1">{{ form.trailing_callback_ratio.errors[0] }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-md-6">
+                    <div class="input-group input-group-sm  mb-3">
+                        <span class="input-group-text bg-danger text-white">SL Ratio</span>
+                        {{ form.stop_loss_percentage(class="form-control form-control-sm") }}
                         <span class="input-group-text"><i class="las la-percent text-danger fs-22"></i></span>
                             {% if form.stop_loss_percentage.errors %}
                                 <p class="text-red-500 text-xs italic mt-1">{{ form.stop_loss_percentage.errors[0] }}</p>
@@ -163,54 +208,65 @@
                     </div>
                 </div> 
 
-                <div class="col-sm-6 col-md-4">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text col-6">Long Margin</span>
-                        {{ form.defined_long_margine_per_trade(class="form-control col-6") }}
-                        <span class="input-group-text"><i class="las la-dollar-sign text-success fs-22"></i></span>
-                            {% if form.defined_long_margine_per_trade.errors %}
-                                <p class="text-red-500 text-xs italic mt-1">{{ form.defined_long_margine_per_trade.errors[0] }}</p>
-                            {% endif %}
-                    </div>
-                </div> 
 
-                <div class="col-sm-6 col-md-4">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text col-6">Short Margin</span>
-                        {{ form.defined_short_margine_per_trade(class="form-control col-6") }}
-                        <span class="input-group-text"><i class="las la-dollar-sign text-success fs-22"></i></span>
-                            {% if form.defined_short_margine_per_trade.errors %}
-                                <p class="text-red-500 text-xs italic mt-1">{{ form.defined_short_margine_per_trade.errors[0] }}</p>
-                            {% endif %}
-                    </div>
-                </div> 
 
-                <div class="col-sm-6 col-md-4">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text col-6">Max Concurrents</span>
-                        {{ form.concorrent(class="form-control col-6") }}
-                        <span class="input-group-text"><i class="las la-building p-right-4 fs-22 text-info"></i></span>
-                            {% if form.concorrent.errors %}
-                                <p class="text-red-500 text-xs italic mt-1">{{ form.concorrent.errors[0] }}</p>
-                            {% endif %}
-                    </div>
-                </div> 
-                
-                <div class="col-sm-6 col-md-4">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text col-6">Order Type</span>
-                        {{ form.order_type(class="form-control col-6") }}
-                        <span class="input-group-text"><i class="las la-compress p-right-4 fs-22 text-info"></i></span>
-                            {% if form.order_type.errors %}
-                                <p class="text-red-500 text-xs italic mt-1">{{ form.order_type.errors[0] }}</p>
-                            {% endif %}
-                    </div>
-                </div> 
-                
-                <div class="col-sm-6 col-md-4">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text bg-info text-white col-6">Telegram Chat Id </span>
-                        {{ form.tg_chatid(class="form-control col-6") }}
+
+            <div class="card-header justify-content-center align-items-center d-flex mb-1">
+                <h6 class="card-title mb-1">Fund Management</h6>
+            </div>
+
+                <div  class="d-flex justify-content-center align-items-center gap-2">
+
+                    <div class="col-sm-6 col-md-6">
+                        <div class="input-group input-group-sm  mb-3">
+                            <span class="input-group-text">Long Margin</span>
+                            {{ form.defined_long_margine_per_trade(class="form-control form-control-sm") }}
+                            <span class="input-group-text"><i class="las la-dollar-sign text-success fs-22"></i></span>
+                                {% if form.defined_long_margine_per_trade.errors %}
+                                    <p class="text-red-500 text-xs italic mt-1">{{ form.defined_long_margine_per_trade.errors[0] }}</p>
+                                {% endif %}
+                        </div>
+                    </div> 
+
+                    <div class="col-sm-6 col-md-6">
+                        <div class="input-group input-group-sm  mb-3">
+                            <span class="input-group-text">Short Margin</span>
+                            {{ form.defined_short_margine_per_trade(class="form-control form-control-sm") }}
+                            <span class="input-group-text"><i class="las la-dollar-sign text-success fs-22"></i></span>
+                                {% if form.defined_short_margine_per_trade.errors %}
+                                    <p class="text-red-500 text-xs italic mt-1">{{ form.defined_short_margine_per_trade.errors[0] }}</p>
+                                {% endif %}
+                        </div>
+                    </div> 
+                </div>
+
+                <div  class="d-flex justify-content-center align-items-center gap-2">
+
+                    <div class="col-sm-6 col-md-6">
+                        <div class="input-group input-group-sm  mb-3">
+                            <span class="input-group-text">Max Concurrents</span>
+                            {{ form.concorrent(class="form-control form-control-sm") }}
+                            <span class="input-group-text"><i class="las la-building p-right-4 fs-22 text-info"></i></span>
+                                {% if form.concorrent.errors %}
+                                    <p class="text-red-500 text-xs italic mt-1">{{ form.concorrent.errors[0] }}</p>
+                                {% endif %}
+                        </div>
+                    </div> 
+                </div>
+
+            <div class="card-header justify-content-center align-items-center d-flex mb-1">
+                <h6 class="card-title mb-1">Common Settings</h6>
+            </div>
+
+
+
+
+        
+            <div  class="d-flex justify-content-center align-items-center gap-2">    
+                <div class="col-sm-6 col-md-6">
+                    <div class="input-group input-group-sm  mb-3">
+                        <span class="input-group-text bg-info text-white">Telegram Chat Id </span>
+                        {{ form.tg_chatid(class="form-control form-control-sm") }}
                         <span class="input-group-text"><i class="bx bxl-telegram p-right-4 fs-22 text-info"></i></span>
                             {% if form.tg_chatid.errors %}
                                 <p class="text-red-500 text-xs italic mt-1">{{ form.tg_chatid.errors[0] }}</p>
@@ -218,28 +274,16 @@
                     </div>
                 </div> 
 
-                <div class="col-sm-6 col-md-4">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text bg-info text-white col-6">Margin Mode</span>
-                        {{ form.marginMode(class="form-control col-6") }}
-                        <span class="input-group-text"><i class="las la-chart-line text-success fs-22"></i></span>
-                            {% if form.marginMode.errors %}
-                                <p class="text-red-500 text-xs italic mt-1">{{ form.marginMode.errors[0] }}</p>
-                            {% endif %}
-                    </div>
-                </div> 
 
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-6">
                     <div class="input-group mb-3">
-                        <span class="input-group-text bg-info text-white col-6">TimeZone</span>
-                        {{ form.timezone(class="form-control col-6") }}
-                        <span class="input-group-text"><i class="las la-clock text-success fs-22"></i></span>
+                        {{ form.timezone(class="form-select form-select-sm rounded-pill") }}
                             {% if form.timezone.errors %}
                                 <p class="text-red-500 text-xs italic mt-1">{{ form.timezone.errors[0] }}</p>
                             {% endif %}
                     </div>
                 </div> 
-
+            </div>
                     <button class="btn btn-danger" type="submit"  id="borderedToast1Btn">
                         Save Settings
                     </button>
@@ -254,3 +298,27 @@
 </div>
 
 {% endblock content %}
+{% block extrajs %}
+    <script>
+        document.getElementById('generateWebhookForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value,
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')  // Assuming you're using token-based authentication
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('disabledInput').value = 'Error: ' + data.error;
+                } else {
+                    document.getElementById('disabledInput').value = 'http://projectsusan.eu.pythonanywhere.com/webhook/' + data.webhook_url;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+{% endblock extrajs %}

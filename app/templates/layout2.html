@@ -163,21 +163,15 @@
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link menu-link" href="{{ url_for('main.trade') }}" role="button">
+                                <a class="{{ 'nav-link menu-link active' if request.endpoint == 'main.trade' else 'nav-link menu-link' }}" href="{{ url_for('main.trade') }}" role="button">
                                     <i class="ri-bit-coin-line"></i> <span>Trade</span> <span class="badge badge-pill bg-danger" data-key="t-hot">Hot</span>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link menu-link" href="{{ url_for('main.history') }}" role="button">
+                                <a class="{{ 'nav-link menu-link active' if request.endpoint == 'main.history' else 'nav-link menu-link' }}" href="{{ url_for('main.history') }}" role="button">
                                     <i class=" ri-chat-history-line"></i> <span>Trade History</span> <span class="badge badge-pill bg-success" data-key="t-hot">New</span>
                                 </a>
                             </li> <!-- end Dashboard Menu -->
-                            <li class="nav-item">
-                                <a class="nav-link menu-link" href="{{ url_for('custom_webhook_bp.generate_webhook') }}" role="button">
-                                    <i class=" ri-chat-history-line"></i> <span>Generate Webhook</span> <span class="badge badge-pill bg-success" data-key="t-hot">New</span>
-                                </a>
-                            </li> <!-- end Dashboard Menu -->
-
                             <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Configs</span></li>
 
                             <li class="nav-item">
@@ -247,6 +241,21 @@
                     {%- endwith %}
                 <div class="page-content">
                     <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                                    <h4 class="mb-sm-0"> {% block custom_page_title %} Test Title {%- endblock %} </h4>
+
+                                    <div class="page-title-right">
+                                        <ol class="breadcrumb m-0">
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Forms</a></li>
+                                            <li class="breadcrumb-item active">Form Select</li>
+                                        </ol>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>                        
                         {% block content %}{% endblock content %}
                     </div>
                     <!-- container-fluid -->

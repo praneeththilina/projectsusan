@@ -1,38 +1,65 @@
 {% extends "layout2.html" %}
 {% block title %}Premium Packages{% endblock title %}
 
+{% block custom_page_title %} Buy Premium{%- endblock %}
 {% block content %}
 
-<div class="container">
-    <div class="row">
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 text-center mb-4">
+            <h1 class="display-4">Choose Your Premium Package</h1>
+            <p class="lead">Unlock premium features and enhance your experience</p>
+        </div>
+
         {% for package in packages %}
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-gem fa-3x text-primary"></i>
+                    </div>
                     <h5 class="card-title">{{ package.name }}</h5>
-                    <p class="card-text">Duration: {{ package.duration_days }} days</p>
-                    <p class="card-text">Price: ${{ package.price }}</p>
-                    <button class="btn btn-primary buy-package" data-package-id="{{ package.id }}">Buy</button>
+                    <p class="card-text"><i class="fas fa-calendar-day"></i> Duration: {{ package.duration_days }} days</p>
+                    <p class="card-text"><i class="fas fa-dollar-sign"></i> Price: ${{ package.price }}</p>
+                    <button class="btn btn-primary btn-lg buy-package" data-package-id="{{ package.id }}">
+                        <i class="fas fa-shopping-cart"></i> Buy Now
+                    </button>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
+
+    {% if current_user.pending_premiums %}
+    <div class="row my-5">
+        <div class="col">
+            <h3 class="mb-3">Your Pending Premium Requests</h3>
+            <ul class="list-group">
+                {% for pending in current_user.pending_premiums %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Package: {{ pending.package.name }}
+                    <span>Start Date: {{ pending.start_date }} - End Date: {{ pending.end_date }}</span>
+                    <span class="badge bg-{{ 'success' if pending.approved else 'warning' }} rounded-pill">
+                        {{ 'Approved' if pending.approved else 'Pending Approval' }}
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if current_user.expire_date %}
+    <div class="row my-5">
+        <div class="col">
+            <div class="alert alert-info">
+                <h4 class="alert-heading">Your Current Premium</h4>
+                <p>Expires on: {{ current_user.expire_date }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
-
-{% if current_user.pending_premiums %}
-<h2>Your Pending Premium Requests</h2>
-<ul>
-    {% for pending in current_user.pending_premiums %}
-    <li>Package: {{ pending.package.name }} - Start Date: {{ pending.start_date }} - End Date: {{ pending.end_date }} - Approved: {{ 'Yes' if pending.approved else 'No' }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
-
-{% if current_user.expire_date %}
-<h2>Your Current Premium</h2>
-<p>Expires on: {{ current_user.expire_date }}</p>
-{% endif %}
 
 {% endblock content %}
 

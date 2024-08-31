@@ -7,6 +7,8 @@ from app.utils import get_ccxt_instance, fetch_user_settings, fetch_balance, \
                     calculate_trade_amount, save_trade,flash_and_telegram, telegram,\
                     fetch_trade_status_for_user, fetch_trade_status, save_trade_tpsl
 
+
+
 def against_side(side):
         """
         Determine the opposite side of a trade.
@@ -178,13 +180,18 @@ def count_decimal_places(min_price):
 
 
 # def execute_trade(pair, side, user_id, api_key, api_secret, order_type):
-def execute_trade(pair, side, user, trade_id):
+def execute_trade(pair, side, user, trade_id, quantity_tv):
 
     try:
+        user_settings = fetch_user_settings(user.id)
+        if not user_settings:
+            raise Exception("User settings not found")
+
         api_key = user.api_key.decode('utf-8')
         api_secret = user.api_secret.decode('utf-8')
-
-        exchange = get_ccxt_instance(api_key, api_secret)
+        testnet = user_settings.testnet
+        print(f"testnet: {testnet}")
+        exchange = get_ccxt_instance(api_key, api_secret,testnet )
         exchange.load_markets()
         market = exchange.market(pair)
         print(market)
@@ -198,8 +205,31 @@ def execute_trade(pair, side, user, trade_id):
 
         # Filter positions where entryPrice is greater than 0.0
         filtered_positions = [position for position in positions if float(position.get('entryPrice', 0.0)) != 0.0]
+        # print(filtered_positions)
         running_position_count = len(filtered_positions)
 
+        if quantity_tv == 0 :
+            positions_cancelling = exchange.fetch_positions(symbols=[pair])
+            print(positions_cancelling)
+
+            for i in positions_cancelling:
+                side_cancel = i['side']
+                symbol_cancel = i["info"]['symbol']
+                amount_cancel = abs(float(i["info"]['positionAmt']))
+
+                print(side_cancel)
+                print(symbol_cancel)
+                print(amount_cancel)
+
+
+                if side_cancel == 'long' and side == 'sell':
+                    close_order = exchange.create_order(symbol_cancel, 'market', 'sell', amount_cancel, None, {'positionSide': 'LONG'})
+
+                elif side_cancel == 'short' and side == 'buy':
+                    close_order = exchange.create_order(symbol_cancel, 'market', 'buy', amount_cancel, None, {'positionSide': 'SHORT'})
+
+            raise Exception("Trade Closed")
+        
         # Check if the coin pair is in the positions list
         if is_coin_pair_in_positions(filtered_positions, pair):
             print(f'Trade can override for {pair}')
@@ -210,12 +240,7 @@ def execute_trade(pair, side, user, trade_id):
         # Print filtered positions
         # pprint(filtered_positions)
         print(f"\nrunning positions count :{running_position_count}")
-
-        user_settings = fetch_user_settings(user.id)
-        if not user_settings:
-            raise Exception("User settings not found")
         
-
         fuel_balance = user._fuel_balance
         if fuel_balance < 10:
             raise Exception('Not enough bot fuel to execute trade.')
@@ -320,10 +345,12 @@ def execute_trade(pair, side, user, trade_id):
             
                 # ------------------------------
                 # created_order = exchange.create_order(pair, order_type, side, position_amount, price, params= {'marginMode' : margin_mode,'positionSide': positionSide,})
+
                 order_response = place_order(exchange, pair, order_type, side, position_amount, price, stop_loss_trigger_price, take_profit_trigger_price1, take_profit_trigger_price2, tp_1_close_ratio, tp_2_close_ratio ,tp_2_profit_ratio, positionSide, sl_method, trailing_stop_callback_rate=trailing_callback_rate, decimal_places= decimal_places)
                 print(f"created order : {created_order}")
                 print(f"tp sl: {order_response}")
-                
+                    
+
                 # Extract relevant details
                 extracted_orders = []
                 if order_response:

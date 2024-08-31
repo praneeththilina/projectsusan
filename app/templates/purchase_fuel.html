@@ -4,9 +4,11 @@
 <div class="row">
     <div class="col-sm-12 col-lg-6">
         <div class="card ">
-            <div class="card-header">
-                <h3>Purchase Fuel</h3>
+
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Purchase Fuel</h4>
             </div>
+
             <div class="card-body">
             {# form-control rounded-pill #}
 
@@ -22,22 +24,23 @@
                             </select>
                     </div>
                 </div> #}
-                                
+                
+
                     <form method="post" autocomplete="off">
                         {{ form.hidden_tag() }}
-                        <div class="input-group mb-3">
-                            <span class="input-group-text col-6">{{ form.package.label }}</span>
-                            {{ form.package(class="form-select col-6", placeholder="Select Package") }}
-                            <span class="input-group-text bg-success"><i class="las la-shopping-bag text-white fs-22"></i></span>
+                        <div class="input-group input-group-sm mb-2">
+                            <span class="input-group-text">{{ form.package.label }}</span>
+                            {{ form.package(class="form-select", placeholder="Select Package") }}
+                            <span class="input-group-text bg-success"><i class="las la-shopping-bag text-white fs-15"></i></span>
                         </div>
-                        <div class="input-group mb-3">
-                            <span class="input-group-text col-6">{{ form.payment_method.label }}</span>
-                            {{ form.payment_method(class="form-select col-6", placeholder="Select Payment Method") }}
-                            <span class="input-group-text bg-info"><i class="lab la-amazon-pay text-white fs-22"></i></span>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text mb-2">{{ form.payment_method.label }}</span>
+                            {{ form.payment_method(class="form-select  mb-2", placeholder="Select Payment Method") }}
+                            <span class="input-group-text bg-info  mb-2"><i class="lab la-amazon-pay text-white fs-15"></i></span>
                         </div>
-                        <div class="input-group mb-3">
-                            <span class="input-group-text col-6">{{ form.pay_id.label }}</span>
-                            {{ form.pay_id(class="form-control col-6", placeholder="Payment reference") }}
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text  mb-2">{{ form.pay_id.label }}</span>
+                            {{ form.pay_id(class="form-control  mb-2", placeholder="Payment reference") }}
                         </div>
                         <div>
                             {{ form.submit(class="btn btn-danger w-100") }}
@@ -50,9 +53,10 @@
     </div>
     <div class="col-sm-12 col-lg-6">
         <div class="card ">
-            <div class="card-header">
-                <h3>Fuel Purchased history</h3>
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Fuel Purchased history</h4>
             </div>
+
             <div class="card-body">
             </div>
         </div>
